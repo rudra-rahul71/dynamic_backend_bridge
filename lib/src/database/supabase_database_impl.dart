@@ -3,6 +3,26 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'database_repository.dart';
 import 'query_filter.dart';
 
+Map<String, dynamic> _serializeDateTimes(Map<String, dynamic> map) {
+  final result = <String, dynamic>{};
+  map.forEach((key, value) {
+    if (value is DateTime) {
+      result[key] = value.toUtc().toIso8601String();
+    } else if (value is Map) {
+      result[key] = _serializeDateTimes(Map<String, dynamic>.from(value));
+    } else if (value is List) {
+      result[key] = value.map((item) {
+        if (item is DateTime) return item.toUtc().toIso8601String();
+        if (item is Map) return _serializeDateTimes(Map<String, dynamic>.from(item));
+        return item;
+      }).toList();
+    } else {
+      result[key] = value;
+    }
+  });
+  return result;
+}
+
 class SupabaseDatabaseImpl implements DatabaseRepository {
   final SupabaseClient client;
 
@@ -14,7 +34,7 @@ class SupabaseDatabaseImpl implements DatabaseRepository {
     required String id,
     required Map<String, dynamic> data,
   }) async {
-    final payload = Map<String, dynamic>.from(data);
+    final payload = _serializeDateTimes(data);
     if (id.isNotEmpty && !payload.containsKey('id')) {
       payload['id'] = id;
     }

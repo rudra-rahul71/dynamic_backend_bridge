@@ -6,3 +6,4 @@ export 'src/database/database_repository.dart';
 export 'src/database/query_filter.dart';
 export 'src/database/typed_collection.dart';
 export 'src/ui/hosting_wizard.dart';
+export 'src/ui/sign_in_page.dart';

@@ -45,13 +45,19 @@ class DynamicBackendBridge {
       final client = Supabase.instance.client;
       final sbAuth = SupabaseAuthImpl(client: client);
       getIt.registerSingleton<AuthRepository>(sbAuth);
-      getIt.registerSingleton<DatabaseRepository>(SupabaseDatabaseImpl(client: client));
+      getIt.registerSingleton<DatabaseRepository>(
+        SupabaseDatabaseImpl(client: client),
+      );
     } else {
       final app = await _initializeFirebase(config, defaultFirebaseOptions);
       final auth = FirebaseAuth.instanceFor(app: app);
       final firestore = FirebaseFirestore.instanceFor(app: app);
-      getIt.registerSingleton<AuthRepository>(FirebaseAuthImpl(firebaseAuth: auth));
-      getIt.registerSingleton<DatabaseRepository>(FirestoreDatabaseImpl(firestore: firestore));
+      getIt.registerSingleton<AuthRepository>(
+        FirebaseAuthImpl(firebaseAuth: auth),
+      );
+      getIt.registerSingleton<DatabaseRepository>(
+        FirestoreDatabaseImpl(firestore: firestore),
+      );
     }
   }
 
@@ -73,23 +79,10 @@ class DynamicBackendBridge {
           'The default/managed Firebase options are invalid or malformed. App ID: "${defaultFirebaseOptions.appId}"',
         );
       }
-      await Firebase.initializeApp(
-        options: defaultFirebaseOptions,
-      );
+      await Firebase.initializeApp(options: defaultFirebaseOptions);
     }
 
     if (config.backendType == BackendType.byoFirebase) {
-      try {
-        final existingApps = Firebase.apps.where((app) => app.name.startsWith('byoApp_')).toList();
-        for (var app in existingApps) {
-          await app.delete();
-        }
-      } catch (e) {
-        debugPrint('Error deleting existing byoApp instances: $e');
-      }
-
-      final uniqueAppName = 'byoApp_${DateTime.now().millisecondsSinceEpoch}';
-
       final byoOptions = FirebaseOptions(
         apiKey: config.firebaseApiKey ?? '',
         appId: config.firebaseAppId ?? '',
@@ -103,8 +96,15 @@ class DynamicBackendBridge {
         );
       }
 
+      final customAppName = 'byo_${byoOptions.projectId}';
+
+      try {
+        final existingApp = Firebase.app(customAppName);
+        return existingApp;
+      } catch (_) {}
+
       return await Firebase.initializeApp(
-        name: uniqueAppName,
+        name: customAppName,
         options: byoOptions,
       );
     } else {
