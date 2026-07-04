@@ -1,6 +1,6 @@
 name: dynamic_backend_bridge
 description: A runtime backend switcher for Flutter providing unified, generic Auth and Database bridges supporting Firebase and Supabase.
-version: 0.0.1
+version: 0.0.2
 homepage: https://github.com/rudra-rahul71/dynamic_backend_bridge
 
 environment:
