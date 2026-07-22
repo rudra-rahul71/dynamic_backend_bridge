@@ -1,14 +1,23 @@
 # dynamic_backend_bridge
 
-A Flutter package that provides a unified, decoupled interface for switching between multiple backend storage providers (Firebase and Supabase) dynamically at runtime. It includes a built-in dark-themed onboarding wizard UI, a unified Auth layer, and a generic map-based Database layer with query filtering support.
+A Flutter package that provides a dynamic, decoupled interface for switching between Supabase backends (Managed Cloud, Custom Supabase Cloud, and Self-Hosted Docker instances) at runtime. It includes a built-in dark-themed onboarding wizard UI, a unified Auth layer, and a generic map-based Database layer with query filtering support.
 
 ## Features
 
-- **Runtime Backend Switching:** Swap between a Managed Firebase Backend, a Custom Bring-Your-Own (BYO) Firebase project, or a self-hosted Supabase instance without rebuilds.
+- **Runtime Backend Switching:** Swap between a Managed Supabase Cloud Backend, a Custom `supabase.com` project, or a self-hosted Docker VPS instance dynamically without rebuilds.
 - **Unified Authentication:** Perform sign-in, sign-up, sign-out, session restoration, and connection health checks via a single abstract interface (`AuthRepository`).
 - **Generic Database Bridge:** Read, write, and stream records reactively using a generic, map-based repository interface (`DatabaseRepository`).
 - **Type-Safe Collections (`TypedCollection<T>`):** Easily wrap the database repository to serialize and deserialize your custom domain models.
-- **Onboarding/Hosting Wizard:** A premium, dark-themed, 3-step UI configuration screen (`HostingWizard`) allowing users or admins to configure and validate backend endpoints.
+- **Onboarding/Hosting Wizard:** A premium, dark-themed UI configuration screen (`HostingWizard`) allowing users or admins to configure and validate backend endpoints.
+
+## Backend Modes
+
+`dynamic_backend_bridge` supports two runtime deployment modes:
+
+1. **`BackendType.managed` (Our Managed Cloud)**:
+   Connects to your organization's default managed Supabase instance. The app developer supplies `defaultSupabaseUrl` and `defaultSupabaseAnonKey` programmatically (or via `AppEnvironment` / `--dart-define`). End users do not need to configure anything.
+2. **`BackendType.customSupabase` (Your Own Supabase Server)**:
+   Allows end-users or administrators to enter their own Supabase Project URL & Anon Key via `HostingWizard`. Works seamlessly for both `supabase.com` Cloud projects and private self-hosted Docker VPS servers.
 
 ## Getting Started
 
@@ -35,6 +44,28 @@ import 'package:dynamic_backend_bridge/dynamic_backend_bridge.dart';
 
 final getIt = GetIt.instance;
 
+// Centralize credentials in a single environment class or --dart-define
+class AppEnvironment {
+  static const String defaultSupabaseUrl = String.fromEnvironment(
+    'SUPABASE_URL',
+    defaultValue: 'https://xyzcompany.supabase.co',
+  );
+  static const String defaultSupabaseAnonKey = String.fromEnvironment(
+    'SUPABASE_ANON_KEY',
+    defaultValue: 'eyJhbGciOiJIUzI1NiIsInR...',
+  );
+}
+
+// Single helper function to initialize backend
+Future<void> initializeBackend(AppConfig config) async {
+  await DynamicBackendBridge.initialize(
+    config: config,
+    getIt: getIt,
+    defaultSupabaseUrl: AppEnvironment.defaultSupabaseUrl,
+    defaultSupabaseAnonKey: AppEnvironment.defaultSupabaseAnonKey,
+  );
+}
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -42,10 +73,7 @@ Future<void> main() async {
   final savedConfig = await configService.getSavedConfig();
 
   if (savedConfig != null) {
-    await DynamicBackendBridge.initialize(
-      config: savedConfig,
-      getIt: getIt,
-    );
+    await initializeBackend(savedConfig);
   }
 
   runApp(MyApp(
@@ -65,10 +93,7 @@ HostingWizard(
   onValidate: (AppConfig config) async {
     // Validate configuration health checks (offline test / credentials sanity check)
     try {
-      await DynamicBackendBridge.initialize(
-        config: config,
-        getIt: getIt,
-      );
+      await initializeBackend(config);
       final auth = getIt<AuthRepository>();
       return await auth.validateConnection();
     } catch (e) {
@@ -89,7 +114,7 @@ Access authentication singletons dynamically from the locator:
 final auth = getIt<AuthRepository>();
 
 // Sign In
-final user = await auth.signIn(email: 'user@example.com', password: 'password');
+final user = await auth.signIn('user@example.com', 'password');
 
 // Sign Out
 await auth.signOut();

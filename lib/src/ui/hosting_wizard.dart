@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/app_config.dart';
 import '../services/config_service.dart';
-import 'widgets/firebase_config_form.dart';
 import 'widgets/supabase_config_form.dart';
 
 class HostingWizard extends StatefulWidget {
@@ -27,24 +26,13 @@ class _HostingWizardState extends State<HostingWizard> {
   int _currentStep = 0;
   bool _isValidating = false;
 
-  // Controllers for BYO Firebase
-  final _apiKeyCtrl = TextEditingController();
-  final _appIdCtrl = TextEditingController();
-  final _senderIdCtrl = TextEditingController();
-  final _projectIdCtrl = TextEditingController();
-  final _fbFormKey = GlobalKey<FormState>();
-
-  // Controllers for Supabase
+  // Controllers for Supabase (Cloud or Self-Hosted)
   final _sbUrlCtrl = TextEditingController(text: 'http://localhost:54321');
   final _sbAnonKeyCtrl = TextEditingController();
   final _sbFormKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
-    _apiKeyCtrl.dispose();
-    _appIdCtrl.dispose();
-    _senderIdCtrl.dispose();
-    _projectIdCtrl.dispose();
     _sbUrlCtrl.dispose();
     _sbAnonKeyCtrl.dispose();
     super.dispose();
@@ -68,25 +56,13 @@ class _HostingWizardState extends State<HostingWizard> {
 
     if (_selectedType == BackendType.managed) {
       config = AppConfig(backendType: BackendType.managed);
-    } else if (_selectedType == BackendType.byoFirebase) {
-      if (!_fbFormKey.currentState!.validate()) {
-        setState(() => _isValidating = false);
-        return;
-      }
-      config = AppConfig(
-        backendType: BackendType.byoFirebase,
-        firebaseApiKey: _apiKeyCtrl.text.trim(),
-        firebaseAppId: _appIdCtrl.text.trim(),
-        firebaseMessagingSenderId: _senderIdCtrl.text.trim(),
-        firebaseProjectId: _projectIdCtrl.text.trim(),
-      );
     } else {
       if (!_sbFormKey.currentState!.validate()) {
         setState(() => _isValidating = false);
         return;
       }
       config = AppConfig(
-        backendType: BackendType.supabase,
+        backendType: BackendType.customSupabase,
         supabaseUrl: _sbUrlCtrl.text.trim(),
         supabaseAnonKey: _sbAnonKeyCtrl.text.trim(),
       );
@@ -94,11 +70,11 @@ class _HostingWizardState extends State<HostingWizard> {
 
     // Validate config with parent onValidate callback
     final errorMsg = await widget.onValidate(config);
-    
+
     if (errorMsg == null) {
       // Save configuration only if validation succeeded!
       await widget.configService.saveConfig(config);
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -182,11 +158,9 @@ class _HostingWizardState extends State<HostingWizard> {
                       ),
                       const SizedBox(height: 24),
                       Text(
-                        _selectedType == BackendType.supabase
+                        _selectedType == BackendType.customSupabase
                             ? 'Validating Supabase Connection...'
-                            : _selectedType == BackendType.byoFirebase
-                                ? 'Validating Firebase Configuration...'
-                                : 'Initializing Cloud Services...',
+                            : 'Initializing Cloud Services...',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 16,
@@ -220,7 +194,7 @@ class _HostingWizardState extends State<HostingWizard> {
         ),
         const SizedBox(height: 6),
         Text(
-          'Select where your application data will be stored. You can use our default servers or host it yourself to keep absolute ownership.',
+          'Select where your application data will be stored. You can use our default managed cloud or connect your own Supabase project / self-hosted server.',
           style: TextStyle(
             color: Colors.white.withOpacity(0.6),
             fontSize: 13,
@@ -230,32 +204,22 @@ class _HostingWizardState extends State<HostingWizard> {
         const SizedBox(height: 24),
         _buildSelectionCard(
           type: BackendType.managed,
-          title: 'Our Organization',
-          subtitle: 'Google Cloud',
-          description: 'Fully hosted and managed by us.',
+          title: 'Our Managed Cloud',
+          subtitle: 'Supabase Cloud',
+          description: 'Fully hosted and managed by our organization.',
           color: const Color(0xFF6366F1),
           difficulty: 'Easy',
           difficultyColor: const Color(0xFF34D399),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 14),
         _buildSelectionCard(
-          type: BackendType.byoFirebase,
-          title: 'Your Own Google Cloud',
-          subtitle: 'Custom Firebase',
-          description: 'Host on your private Google Cloud.',
-          color: const Color(0xFFF59E0B),
-          difficulty: 'Medium',
-          difficultyColor: const Color(0xFFF59E0B),
-        ),
-        const SizedBox(height: 12),
-        _buildSelectionCard(
-          type: BackendType.supabase,
-          title: 'Your Own Server',
-          subtitle: 'Supabase / Docker',
-          description: 'Host on your own VPS or server.',
+          type: BackendType.customSupabase,
+          title: 'Your Own Supabase Server',
+          subtitle: 'Supabase Cloud or Docker VPS',
+          description: 'Connect your supabase.com project or self-hosted server.',
           color: const Color(0xFF3ECF8E),
-          difficulty: 'Advanced',
-          difficultyColor: const Color(0xFFEF4444),
+          difficulty: 'Flexible',
+          difficultyColor: const Color(0xFF3ECF8E),
         ),
       ],
     );
@@ -295,9 +259,7 @@ class _HostingWizardState extends State<HostingWizard> {
               child: Icon(
                 type == BackendType.managed
                     ? Icons.cloud_done_rounded
-                    : type == BackendType.byoFirebase
-                        ? Icons.local_fire_department_rounded
-                        : Icons.dns_rounded,
+                    : Icons.dns_rounded,
                 color: color,
                 size: 20,
               ),
@@ -409,16 +371,7 @@ class _HostingWizardState extends State<HostingWizard> {
           ],
         ),
         const SizedBox(height: 24),
-        if (_selectedType == BackendType.byoFirebase)
-          FirebaseConfigForm(
-            formKey: _fbFormKey,
-            apiKeyCtrl: _apiKeyCtrl,
-            appIdCtrl: _appIdCtrl,
-            projectIdCtrl: _projectIdCtrl,
-            senderIdCtrl: _senderIdCtrl,
-            themeColor: _getThemeColor(),
-          ),
-        if (_selectedType == BackendType.supabase)
+        if (_selectedType == BackendType.customSupabase)
           SupabaseConfigForm(
             formKey: _sbFormKey,
             urlCtrl: _sbUrlCtrl,
@@ -462,12 +415,10 @@ class _HostingWizardState extends State<HostingWizard> {
     switch (_selectedType) {
       case BackendType.managed:
         return const Color(0xFF6366F1);
-      case BackendType.byoFirebase:
-        return const Color(0xFFF59E0B);
-      case BackendType.supabase:
+      case BackendType.customSupabase:
         return const Color(0xFF3ECF8E);
       default:
-        return Colors.indigo;
+        return const Color(0xFF3ECF8E);
     }
   }
 
