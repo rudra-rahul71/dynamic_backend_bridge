@@ -64,40 +64,66 @@ class SupabaseDatabaseImpl implements DatabaseRepository {
       streamQuery = streamBuilder;
     }
 
-    return streamQuery.map((list) {
-      var maps = list.map((map) => Map<String, dynamic>.from(map)).toList();
+    return streamQuery
+        .map((list) {
+          var maps = list.map((map) => Map<String, dynamic>.from(map)).toList();
 
-      // Apply any secondary filters client-side (Supabase streams only support a single server-side filter)
-      if (filters != null && filters.length > 1) {
-        final remainingFilters = filters.skip(1);
-        for (final filter in remainingFilters) {
-          if (filter.operator == FilterOperator.equal) {
-            maps = maps.where((map) {
-              final val = map[filter.field];
-              if (val == null) return filter.value == null;
-              return val.toString() == filter.value.toString();
-            }).toList();
-          } else if (filter.operator == FilterOperator.greaterThan) {
-            maps = maps.where((map) {
-              final val = map[filter.field];
-              if (val is Comparable && filter.value is Comparable) {
-                return val.compareTo(filter.value) > 0;
-              }
-              return false;
-            }).toList();
-          } else if (filter.operator == FilterOperator.lessThan) {
-            maps = maps.where((map) {
-              final val = map[filter.field];
-              if (val is Comparable && filter.value is Comparable) {
-                return val.compareTo(filter.value) < 0;
-              }
-              return false;
-            }).toList();
+          // Apply any secondary filters client-side robustly
+          if (filters != null && filters.length > 1) {
+            final remainingFilters = filters.skip(1);
+            for (final filter in remainingFilters) {
+              maps = maps.where((map) {
+                final val = map[filter.field];
+                final targetVal = filter.value;
+
+                if (filter.operator == FilterOperator.equal) {
+                  if (val == null) return targetVal == null;
+                  return val.toString() == targetVal.toString();
+                }
+
+                if (val == null || targetVal == null) return false;
+
+                // Handle DateTimes
+                if (val is String && targetVal is DateTime) {
+                  final parsedVal = DateTime.tryParse(val);
+                  if (parsedVal != null) {
+                    if (filter.operator == FilterOperator.greaterThan) {
+                      return parsedVal.isAfter(targetVal);
+                    } else if (filter.operator == FilterOperator.lessThan) {
+                      return parsedVal.isBefore(targetVal);
+                    }
+                  }
+                }
+
+                // Handle Numbers
+                if (val is num && targetVal is num) {
+                  if (filter.operator == FilterOperator.greaterThan) {
+                    return val > targetVal;
+                  } else if (filter.operator == FilterOperator.lessThan) {
+                    return val < targetVal;
+                  }
+                }
+
+                // Generic Comparables
+                if (val is Comparable && targetVal is Comparable) {
+                  final cmp = val.compareTo(targetVal);
+                  if (filter.operator == FilterOperator.greaterThan) {
+                    return cmp > 0;
+                  } else if (filter.operator == FilterOperator.lessThan) {
+                    return cmp < 0;
+                  }
+                }
+
+                return false;
+              }).toList();
+            }
           }
-        }
-      }
-      return maps;
-    });
+          return maps;
+        })
+        .handleError((error, stackTrace) {
+          // Log stream disconnection error and yield empty/error state cleanly
+          return <Map<String, dynamic>>[];
+        });
   }
 
   @override

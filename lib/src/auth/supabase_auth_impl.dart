@@ -18,11 +18,15 @@ class SupabaseAuthImpl implements AuthRepository {
   @override
   Stream<UserEntity?> get authStateChanges async* {
     yield currentUser;
-    await for (final data in client.auth.onAuthStateChange) {
-      final user = data.session?.user ?? client.auth.currentUser;
-      yield user != null
-          ? SimpleUserEntity(uid: user.id, email: user.email ?? '')
-          : null;
+    try {
+      await for (final data in client.auth.onAuthStateChange) {
+        final user = data.session?.user ?? client.auth.currentUser;
+        yield user != null
+            ? SimpleUserEntity(uid: user.id, email: user.email ?? '')
+            : null;
+      }
+    } catch (_) {
+      yield currentUser;
     }
   }
 
@@ -57,8 +61,14 @@ class SupabaseAuthImpl implements AuthRepository {
     try {
       await client.storage.listBuckets().timeout(const Duration(seconds: 4));
       return null;
+    } on TimeoutException {
+      return 'Connection timed out. Server unreachable or offline.';
     } catch (e) {
-      return 'Supabase connection failed.';
+      final msg = e.toString();
+      if (msg.contains('SocketException') || msg.contains('Failed host lookup')) {
+        return 'Network error: Server host unreachable.';
+      }
+      return 'Supabase connection failed: $msg';
     }
   }
 }
