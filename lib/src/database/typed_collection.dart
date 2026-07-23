@@ -22,6 +22,11 @@ class TypedCollection<T> {
     );
   }
 
+  Future<List<T>> fetch({List<QueryFilter>? filters}) async {
+    final list = await _repo.fetchMap(collection: collectionName, filters: filters);
+    return list.map((map) => fromMap(map, map['id']?.toString() ?? '')).toList();
+  }
+
   Stream<List<T>> watch({List<QueryFilter>? filters}) {
     return _repo.watchMap(collection: collectionName, filters: filters)
         .map((list) => list.map((map) => fromMap(map, map['id']?.toString() ?? '')).toList());

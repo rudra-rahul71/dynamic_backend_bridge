@@ -42,88 +42,51 @@ class SupabaseDatabaseImpl implements DatabaseRepository {
   }
 
   @override
+  Future<List<Map<String, dynamic>>> fetchMap({
+    required String collection,
+    List<QueryFilter>? filters,
+  }) async {
+    dynamic query = client.from(collection).select();
+    if (filters != null && filters.isNotEmpty) {
+      for (final filter in filters) {
+        if (filter.operator == FilterOperator.equal) {
+          query = query.eq(filter.field, filter.value);
+        } else if (filter.operator == FilterOperator.greaterThan) {
+          query = query.gt(filter.field, filter.value);
+        } else if (filter.operator == FilterOperator.lessThan) {
+          query = query.lt(filter.field, filter.value);
+        }
+      }
+    }
+    final List response = await query;
+    return response.map((item) => Map<String, dynamic>.from(item as Map)).toList();
+  }
+
+  @override
   Stream<List<Map<String, dynamic>>> watchMap({
     required String collection,
     List<QueryFilter>? filters,
   }) {
-    final streamBuilder = client.from(collection).stream(primaryKey: ['id']);
-    Stream<List<Map<String, dynamic>>> streamQuery;
+    dynamic filterBuilder = client.from(collection).stream(primaryKey: ['id']);
 
     if (filters != null && filters.isNotEmpty) {
-      final firstFilter = filters.first;
-      if (firstFilter.operator == FilterOperator.equal) {
-        streamQuery = streamBuilder.eq(firstFilter.field, firstFilter.value);
-      } else if (firstFilter.operator == FilterOperator.greaterThan) {
-        streamQuery = streamBuilder.gt(firstFilter.field, firstFilter.value);
-      } else if (firstFilter.operator == FilterOperator.lessThan) {
-        streamQuery = streamBuilder.lt(firstFilter.field, firstFilter.value);
-      } else {
-        streamQuery = streamBuilder;
+      for (final filter in filters) {
+        if (filter.operator == FilterOperator.equal) {
+          filterBuilder = filterBuilder.eq(filter.field, filter.value);
+        } else if (filter.operator == FilterOperator.greaterThan) {
+          filterBuilder = filterBuilder.gt(filter.field, filter.value);
+        } else if (filter.operator == FilterOperator.lessThan) {
+          filterBuilder = filterBuilder.lt(filter.field, filter.value);
+        }
       }
-    } else {
-      streamQuery = streamBuilder;
     }
 
-    return streamQuery
-        .map((list) {
-          var maps = list.map((map) => Map<String, dynamic>.from(map)).toList();
+    final Stream<List<Map<String, dynamic>>> streamQuery = (filterBuilder as Stream)
+        .map((list) => (list as List).map((map) => Map<String, dynamic>.from(map as Map)).toList());
 
-          // Apply any secondary filters client-side robustly
-          if (filters != null && filters.length > 1) {
-            final remainingFilters = filters.skip(1);
-            for (final filter in remainingFilters) {
-              maps = maps.where((map) {
-                final val = map[filter.field];
-                final targetVal = filter.value;
-
-                if (filter.operator == FilterOperator.equal) {
-                  if (val == null) return targetVal == null;
-                  return val.toString() == targetVal.toString();
-                }
-
-                if (val == null || targetVal == null) return false;
-
-                // Handle DateTimes
-                if (val is String && targetVal is DateTime) {
-                  final parsedVal = DateTime.tryParse(val);
-                  if (parsedVal != null) {
-                    if (filter.operator == FilterOperator.greaterThan) {
-                      return parsedVal.isAfter(targetVal);
-                    } else if (filter.operator == FilterOperator.lessThan) {
-                      return parsedVal.isBefore(targetVal);
-                    }
-                  }
-                }
-
-                // Handle Numbers
-                if (val is num && targetVal is num) {
-                  if (filter.operator == FilterOperator.greaterThan) {
-                    return val > targetVal;
-                  } else if (filter.operator == FilterOperator.lessThan) {
-                    return val < targetVal;
-                  }
-                }
-
-                // Generic Comparables
-                if (val is Comparable && targetVal is Comparable) {
-                  final cmp = val.compareTo(targetVal);
-                  if (filter.operator == FilterOperator.greaterThan) {
-                    return cmp > 0;
-                  } else if (filter.operator == FilterOperator.lessThan) {
-                    return cmp < 0;
-                  }
-                }
-
-                return false;
-              }).toList();
-            }
-          }
-          return maps;
-        })
-        .handleError((error, stackTrace) {
-          // Log stream disconnection error and yield empty/error state cleanly
-          return <Map<String, dynamic>>[];
-        });
+    return streamQuery.handleError((error, stackTrace) {
+      return <Map<String, dynamic>>[];
+    });
   }
 
   @override

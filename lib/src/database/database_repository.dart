@@ -7,6 +7,11 @@ abstract class DatabaseRepository {
     required Map<String, dynamic> data,
   });
 
+  Future<List<Map<String, dynamic>>> fetchMap({
+    required String collection,
+    List<QueryFilter>? filters,
+  });
+
   Stream<List<Map<String, dynamic>>> watchMap({
     required String collection,
     List<QueryFilter>? filters,
