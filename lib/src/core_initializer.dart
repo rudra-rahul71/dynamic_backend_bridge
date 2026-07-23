@@ -21,26 +21,24 @@ class DynamicBackendBridge {
   }) async {
     // Unregister existing services if registered (for backend hot swaps)
     if (getIt.isRegistered<AuthRepository>()) {
+      try {
+        await getIt<AuthRepository>().signOut();
+      } catch (_) {}
       await getIt.unregister<AuthRepository>();
     }
     if (getIt.isRegistered<DatabaseRepository>()) {
       await getIt.unregister<DatabaseRepository>();
     }
 
+    // Dispose existing Supabase instance if previously initialized to allow hot swapping backend endpoints
     try {
       await Supabase.instance.dispose();
     } catch (_) {}
 
-    final String url;
-    final String anonKey;
-
-    if (config.backendType == BackendType.managed) {
-      url = defaultSupabaseUrl ?? 'http://localhost:54321';
-      anonKey = defaultSupabaseAnonKey ?? '';
-    } else {
-      url = config.supabaseUrl ?? 'http://localhost:54321';
-      anonKey = config.supabaseAnonKey ?? '';
-    }
+    final isManaged = config.backendType == BackendType.managed;
+    final url = (isManaged ? defaultSupabaseUrl : config.supabaseUrl) ?? '';
+    final anonKey =
+        (isManaged ? defaultSupabaseAnonKey : config.supabaseAnonKey) ?? '';
 
     await Supabase.initialize(
       url: url,
@@ -51,8 +49,7 @@ class DynamicBackendBridge {
     );
 
     final client = Supabase.instance.client;
-    final sbAuth = SupabaseAuthImpl(client: client);
-    getIt.registerSingleton<AuthRepository>(sbAuth);
+    getIt.registerSingleton<AuthRepository>(SupabaseAuthImpl(client: client));
     getIt.registerSingleton<DatabaseRepository>(
       SupabaseDatabaseImpl(client: client),
     );
