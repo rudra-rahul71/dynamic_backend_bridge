@@ -15,10 +15,12 @@ abstract class DatabaseRepository {
   Stream<List<Map<String, dynamic>>> watchMap({
     required String collection,
     List<QueryFilter>? filters,
+    List<String> primaryKey = const ['id'],
   });
 
   Future<void> deleteMap({
     required String collection,
     required String id,
+    String primaryKey = 'id',
   });
 }

@@ -26,7 +26,7 @@ class AppConfig {
 
   factory AppConfig.fromJson(Map<String, dynamic> json) {
     final rawType = json['backendType'];
-    final type = (rawType == 'customSupabase' || rawType == 'supabase')
+    final type = (rawType == 'customSupabase')
         ? BackendType.customSupabase
         : BackendType.managed;
 
