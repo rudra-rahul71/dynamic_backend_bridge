@@ -25,8 +25,7 @@ Add the package to your `pubspec.yaml` dependencies:
 
 ```yaml
 dependencies:
-  dynamic_backend_bridge:
-    path: path/to/dynamic_backend_bridge
+  dynamic_backend_bridge: ^0.0.4
 ```
 
 Run `flutter pub get` to install the dependencies.

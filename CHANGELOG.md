@@ -1,3 +1,9 @@
+## 0.0.4
+
+* Added interactive package example application in `example/example.dart`.
+* Resolved linter warning in `SupabaseConfigForm` widget.
+* Verified 100% static analysis compliance (`flutter analyze` clean).
+
 ## 0.0.3
 
 * Refactored package architecture to standardize on pure Supabase (Managed Cloud and Custom/Self-Hosted Supabase VPS).

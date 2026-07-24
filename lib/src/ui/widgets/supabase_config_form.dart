@@ -33,8 +33,9 @@ class SupabaseConfigForm extends StatelessWidget {
             hint: 'e.g. http://192.168.1.50:54321 or https://xxx.supabase.co',
             themeColor: themeColor,
             validator: (value) {
-              if (value == null || value.isEmpty)
+              if (value == null || value.isEmpty) {
                 return 'Server URL is required';
+              }
               if (!Uri.parse(value).isAbsolute) return 'Enter a valid URL';
               return null;
             },
