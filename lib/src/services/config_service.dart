@@ -8,41 +8,28 @@ class ConfigService {
   final FlutterSecureStorage _secureStorage;
 
   ConfigService({FlutterSecureStorage? secureStorage})
-      : _secureStorage = secureStorage ?? const FlutterSecureStorage();
+    : _secureStorage = secureStorage ?? const FlutterSecureStorage();
 
   Future<AppConfig?> getSavedConfig() async {
+    // 1. Try reading from FlutterSecureStorage
     try {
-      // 1. Try reading from FlutterSecureStorage
       final secureVal = await _secureStorage.read(key: _configKey);
       if (secureVal != null && secureVal.isNotEmpty) {
         final jsonMap = json.decode(secureVal) as Map<String, dynamic>;
         return AppConfig.fromJson(jsonMap);
       }
+    } catch (_) {}
 
-      // 2. Migration fallback: read legacy SharedPreferences if present
+    // 2. Fallback to SharedPreferences if secure storage is empty or throws
+    try {
       final prefs = await SharedPreferences.getInstance();
-      final legacyStr = prefs.getString(_configKey);
-      if (legacyStr != null && legacyStr.isNotEmpty) {
-        try {
-          final jsonMap = json.decode(legacyStr) as Map<String, dynamic>;
-          final config = AppConfig.fromJson(jsonMap);
-          // Migrate to secure storage & delete legacy plaintext string
-          await saveConfig(config);
-          await prefs.remove(_configKey);
-          return config;
-        } catch (_) {}
+      final strVal = prefs.getString(_configKey);
+      if (strVal != null && strVal.isNotEmpty) {
+        final jsonMap = json.decode(strVal) as Map<String, dynamic>;
+        return AppConfig.fromJson(jsonMap);
       }
-    } catch (_) {
-      // Fallback for platform environments where FlutterSecureStorage might throw
-      try {
-        final prefs = await SharedPreferences.getInstance();
-        final legacyStr = prefs.getString(_configKey);
-        if (legacyStr != null && legacyStr.isNotEmpty) {
-          final jsonMap = json.decode(legacyStr) as Map<String, dynamic>;
-          return AppConfig.fromJson(jsonMap);
-        }
-      } catch (_) {}
-    }
+    } catch (_) {}
+
     return null;
   }
 
@@ -61,7 +48,9 @@ class ConfigService {
     try {
       await _secureStorage.delete(key: _configKey);
     } catch (_) {}
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_configKey);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_configKey);
+    } catch (_) {}
   }
 }
