@@ -108,7 +108,10 @@ class _HostingWizardState extends State<HostingWizard> {
           body: Center(
             child: SingleChildScrollView(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16.0,
+                  vertical: 24.0,
+                ),
                 child: Container(
                   constraints: const BoxConstraints(maxWidth: 500),
                   padding: const EdgeInsets.all(24.0),
@@ -121,12 +124,14 @@ class _HostingWizardState extends State<HostingWizard> {
                         color: Colors.black.withOpacity(0.3),
                         blurRadius: 20,
                         offset: const Offset(0, 10),
-                      )
+                      ),
                     ],
                   ),
                   child: AnimatedSwitcher(
                     duration: const Duration(milliseconds: 300),
-                    child: _currentStep == 0 ? _buildSelectionStep() : _buildConfigStep(),
+                    child: _currentStep == 0
+                        ? _buildSelectionStep()
+                        : _buildConfigStep(),
                   ),
                 ),
               ),
@@ -134,10 +139,7 @@ class _HostingWizardState extends State<HostingWizard> {
           ),
         ),
         if (_isValidating) ...[
-          const ModalBarrier(
-            dismissible: false,
-            color: Colors.black54,
-          ),
+          const ModalBarrier(dismissible: false, color: Colors.black54),
           Center(
             child: Material(
               type: MaterialType.transparency,
@@ -149,13 +151,14 @@ class _HostingWizardState extends State<HostingWizard> {
                   side: BorderSide(color: Colors.white.withOpacity(0.08)),
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 32.0),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 40.0,
+                    vertical: 32.0,
+                  ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      CircularProgressIndicator(
-                        color: _getThemeColor(),
-                      ),
+                      CircularProgressIndicator(color: _getThemeColor()),
                       const SizedBox(height: 24),
                       Text(
                         _selectedType == BackendType.customSupabase
@@ -216,7 +219,8 @@ class _HostingWizardState extends State<HostingWizard> {
           type: BackendType.customSupabase,
           title: 'Your Own Supabase Server',
           subtitle: 'Supabase Cloud or Docker VPS',
-          description: 'Connect your supabase.com project or self-hosted server.',
+          description:
+              'Connect your supabase.com project or self-hosted server.',
           color: const Color(0xFF3ECF8E),
           difficulty: 'Flexible',
           difficultyColor: const Color(0xFF3ECF8E),
@@ -282,11 +286,17 @@ class _HostingWizardState extends State<HostingWizard> {
                       ),
                       const SizedBox(width: 8),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 1.5,
+                        ),
                         decoration: BoxDecoration(
                           color: difficultyColor.withOpacity(0.12),
                           borderRadius: BorderRadius.circular(6),
-                          border: Border.all(color: difficultyColor.withOpacity(0.25), width: 1),
+                          border: Border.all(
+                            color: difficultyColor.withOpacity(0.25),
+                            width: 1,
+                          ),
                         ),
                         child: Text(
                           difficulty,
@@ -397,10 +407,7 @@ class _HostingWizardState extends State<HostingWizard> {
               _selectedType == BackendType.managed
                   ? 'Confirm & Continue'
                   : 'Test & Save Configuration',
-              style: const TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
             ),
           ),
         ),

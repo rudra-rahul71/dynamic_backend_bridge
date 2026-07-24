@@ -24,9 +24,15 @@ class WizardTextField extends StatelessWidget {
       style: const TextStyle(color: Colors.white, fontSize: 14),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 13),
+        labelStyle: TextStyle(
+          color: Colors.white.withOpacity(0.4),
+          fontSize: 13,
+        ),
         hintText: hint,
-        hintStyle: TextStyle(color: Colors.white.withOpacity(0.25), fontSize: 13),
+        hintStyle: TextStyle(
+          color: Colors.white.withOpacity(0.25),
+          fontSize: 13,
+        ),
         filled: true,
         fillColor: const Color(0xFF262626),
         enabledBorder: OutlineInputBorder(
@@ -45,7 +51,10 @@ class WizardTextField extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: Colors.redAccent, width: 2),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
       ),
     );
   }

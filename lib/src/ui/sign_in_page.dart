@@ -71,7 +71,9 @@ class _DynamicSignInPageState extends State<DynamicSignInPage> {
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Authentication failed. Please verify credentials.'),
+              content: Text(
+                'Authentication failed. Please verify credentials.',
+              ),
               backgroundColor: Colors.redAccent,
             ),
           );
@@ -97,7 +99,9 @@ class _DynamicSignInPageState extends State<DynamicSignInPage> {
 
   @override
   Widget build(BuildContext context) {
-    final buttonTextColor = ThemeData.estimateBrightnessForColor(widget.themeColor) == Brightness.dark
+    final buttonTextColor =
+        ThemeData.estimateBrightnessForColor(widget.themeColor) ==
+            Brightness.dark
         ? Colors.white
         : Colors.black;
 
@@ -118,9 +122,7 @@ class _DynamicSignInPageState extends State<DynamicSignInPage> {
                   if (widget.appIcon != null) ...[
                     Transform.translate(
                       offset: const Offset(0, 16),
-                      child: Center(
-                        child: widget.appIcon!,
-                      ),
+                      child: Center(child: widget.appIcon!),
                     ),
                   ] else ...[
                     Transform.translate(
@@ -165,8 +167,14 @@ class _DynamicSignInPageState extends State<DynamicSignInPage> {
                     style: const TextStyle(color: Colors.white, fontSize: 14),
                     decoration: InputDecoration(
                       labelText: 'Email Address',
-                      labelStyle: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 13),
-                      prefixIcon: Icon(Icons.email_outlined, color: Colors.white.withOpacity(0.4)),
+                      labelStyle: TextStyle(
+                        color: Colors.white.withOpacity(0.4),
+                        fontSize: 13,
+                      ),
+                      prefixIcon: Icon(
+                        Icons.email_outlined,
+                        color: Colors.white.withOpacity(0.4),
+                      ),
                       filled: true,
                       fillColor: const Color(0xFF262626),
                       border: OutlineInputBorder(
@@ -206,8 +214,14 @@ class _DynamicSignInPageState extends State<DynamicSignInPage> {
                     style: const TextStyle(color: Colors.white, fontSize: 14),
                     decoration: InputDecoration(
                       labelText: 'Password',
-                      labelStyle: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 13),
-                      prefixIcon: Icon(Icons.lock_outlined, color: Colors.white.withOpacity(0.4)),
+                      labelStyle: TextStyle(
+                        color: Colors.white.withOpacity(0.4),
+                        fontSize: 13,
+                      ),
+                      prefixIcon: Icon(
+                        Icons.lock_outlined,
+                        color: Colors.white.withOpacity(0.4),
+                      ),
                       suffixIcon: IconButton(
                         icon: Icon(
                           _obscurePassword
