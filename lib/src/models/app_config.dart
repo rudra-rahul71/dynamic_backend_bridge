@@ -1,7 +1,4 @@
-enum BackendType {
-  managed,
-  customSupabase,
-}
+enum BackendType { managed, customSupabase }
 
 class AppConfig {
   final BackendType backendType;

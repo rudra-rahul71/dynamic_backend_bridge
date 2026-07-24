@@ -16,7 +16,8 @@ void main() {
       config: config1,
       getIt: getIt,
       defaultSupabaseUrl: 'https://managed.supabase.co',
-      defaultSupabaseAnonKey: 'managedKey1234567890123456789012345678901234567890',
+      defaultSupabaseAnonKey:
+          'managedKey1234567890123456789012345678901234567890',
     );
 
     final url1 = Supabase.instance.client.rest.url;
@@ -32,11 +33,11 @@ void main() {
       config: config2,
       getIt: getIt,
       defaultSupabaseUrl: 'https://managed.supabase.co',
-      defaultSupabaseAnonKey: 'managedKey1234567890123456789012345678901234567890',
+      defaultSupabaseAnonKey:
+          'managedKey1234567890123456789012345678901234567890',
     );
 
     final url2 = Supabase.instance.client.rest.url;
     expect(url2, contains('custom.supabase.co'));
   });
 }
-

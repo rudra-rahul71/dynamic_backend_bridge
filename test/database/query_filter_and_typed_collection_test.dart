@@ -52,7 +52,9 @@ class FakeDatabaseRepository implements DatabaseRepository {
     required String id,
     String primaryKey = 'id',
   }) async {
-    storage[collection]?.removeWhere((item) => item[primaryKey]?.toString() == id);
+    storage[collection]?.removeWhere(
+      (item) => item[primaryKey]?.toString() == id,
+    );
   }
 }
 
@@ -75,7 +77,11 @@ void main() {
         repo: repo,
         collectionName: 'users',
         primaryKeyField: 'uuid',
-        toMap: (item) => {'uuid': item.uuid, 'name': item.name, 'age': item.age},
+        toMap: (item) => {
+          'uuid': item.uuid,
+          'name': item.name,
+          'age': item.age,
+        },
         fromMap: (map, id) => SampleModel(
           uuid: id,
           name: map['name'] as String,
@@ -95,22 +101,36 @@ void main() {
     });
 
     test('QueryFilter supports all operators', () async {
-      await collection.save(SampleModel(uuid: '1', name: 'Alice', age: 20), '1');
+      await collection.save(
+        SampleModel(uuid: '1', name: 'Alice', age: 20),
+        '1',
+      );
       await collection.save(SampleModel(uuid: '2', name: 'Bob', age: 30), '2');
-      await collection.save(SampleModel(uuid: '3', name: 'Charlie', age: 40), '3');
+      await collection.save(
+        SampleModel(uuid: '3', name: 'Charlie', age: 40),
+        '3',
+      );
 
-      final gteResults = await collection.fetch(filters: [QueryFilter.gte('age', 30)]);
+      final gteResults = await collection.fetch(
+        filters: [QueryFilter.gte('age', 30)],
+      );
       expect(gteResults.length, equals(2));
 
-      final lteResults = await collection.fetch(filters: [QueryFilter.lte('age', 20)]);
+      final lteResults = await collection.fetch(
+        filters: [QueryFilter.lte('age', 20)],
+      );
       expect(lteResults.length, equals(1));
 
-      final neqResults = await collection.fetch(filters: [QueryFilter.neq('name', 'Bob')]);
+      final neqResults = await collection.fetch(
+        filters: [QueryFilter.neq('name', 'Bob')],
+      );
       expect(neqResults.length, equals(2));
 
-      final inResults = await collection.fetch(filters: [
-        QueryFilter.inFilter('name', ['Alice', 'Charlie'])
-      ]);
+      final inResults = await collection.fetch(
+        filters: [
+          QueryFilter.inFilter('name', ['Alice', 'Charlie']),
+        ],
+      );
       expect(inResults.length, equals(2));
     });
   });

@@ -7,26 +7,19 @@ class SupabaseAuthImpl implements AuthRepository {
 
   SupabaseAuthImpl({required this.client});
 
-  @override
-  UserEntity? get currentUser {
-    final user = client.auth.currentUser;
-    return user != null
-        ? SimpleUserEntity(uid: user.id, email: user.email ?? '')
-        : null;
+  UserEntity? _mapUser(User? user) {
+    if (user == null) return null;
+    return SimpleUserEntity(uid: user.id, email: user.email ?? '');
   }
+
+  @override
+  UserEntity? get currentUser => _mapUser(client.auth.currentUser);
 
   @override
   Stream<UserEntity?> get authStateChanges async* {
     yield currentUser;
-    try {
-      await for (final data in client.auth.onAuthStateChange) {
-        final user = data.session?.user ?? client.auth.currentUser;
-        yield user != null
-            ? SimpleUserEntity(uid: user.id, email: user.email ?? '')
-            : null;
-      }
-    } catch (_) {
-      yield currentUser;
+    await for (final data in client.auth.onAuthStateChange) {
+      yield _mapUser(data.session?.user ?? client.auth.currentUser);
     }
   }
 
@@ -36,19 +29,13 @@ class SupabaseAuthImpl implements AuthRepository {
       email: email,
       password: password,
     );
-    final user = response.user;
-    return user != null
-        ? SimpleUserEntity(uid: user.id, email: user.email ?? '')
-        : null;
+    return _mapUser(response.user);
   }
 
   @override
   Future<UserEntity?> signUp(String email, String password) async {
     final response = await client.auth.signUp(email: email, password: password);
-    final user = response.user;
-    return user != null
-        ? SimpleUserEntity(uid: user.id, email: user.email ?? '')
-        : null;
+    return _mapUser(response.user);
   }
 
   @override
@@ -65,7 +52,8 @@ class SupabaseAuthImpl implements AuthRepository {
       return 'Connection timed out. Server unreachable or offline.';
     } catch (e) {
       final msg = e.toString();
-      if (msg.contains('SocketException') || msg.contains('Failed host lookup')) {
+      if (msg.contains('SocketException') ||
+          msg.contains('Failed host lookup')) {
         return 'Network error: Server host unreachable.';
       }
       return 'Supabase connection failed: $msg';

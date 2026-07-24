@@ -9,7 +9,21 @@ class SimpleUserEntity implements UserEntity {
   @override
   final String email;
 
-  SimpleUserEntity({required this.uid, required this.email});
+  const SimpleUserEntity({required this.uid, required this.email});
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SimpleUserEntity &&
+          runtimeType == other.runtimeType &&
+          uid == other.uid &&
+          email == other.email;
+
+  @override
+  int get hashCode => uid.hashCode ^ email.hashCode;
+
+  @override
+  String toString() => 'SimpleUserEntity(uid: $uid, email: $email)';
 }
 
 abstract class AuthRepository {
