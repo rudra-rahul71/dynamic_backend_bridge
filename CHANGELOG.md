@@ -1,3 +1,8 @@
+## 0.0.5
+
+* Updated core package dependencies to latest releases (`flutter_secure_storage` ^10.3.1, `supabase_flutter` ^2.16.0, `get_it` ^9.2.1, `shared_preferences` ^2.5.5).
+* Achieved full pub.dev package score compliance.
+
 ## 0.0.4
 
 * Added interactive package example application in `example/example.dart`.
