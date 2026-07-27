@@ -7,14 +7,12 @@ class HostingWizard extends StatefulWidget {
   final Future<String?> Function(AppConfig config) onValidate;
   final void Function(AppConfig config) onComplete;
   final ConfigService configService;
-  final Color? themeColor;
 
   const HostingWizard({
     super.key,
     required this.onValidate,
     required this.onComplete,
     required this.configService,
-    this.themeColor,
   });
 
   @override
@@ -104,7 +102,7 @@ class _HostingWizardState extends State<HostingWizard> {
     return Stack(
       children: [
         Scaffold(
-          backgroundColor: const Color(0xFF121212),
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           body: Center(
             child: SingleChildScrollView(
               child: Padding(
@@ -116,7 +114,7 @@ class _HostingWizardState extends State<HostingWizard> {
                   constraints: const BoxConstraints(maxWidth: 500),
                   padding: const EdgeInsets.all(24.0),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF1E1E1E),
+                    color: Theme.of(context).colorScheme.surface,
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(color: Colors.white.withOpacity(0.08)),
                     boxShadow: [
@@ -386,7 +384,6 @@ class _HostingWizardState extends State<HostingWizard> {
             formKey: _sbFormKey,
             urlCtrl: _sbUrlCtrl,
             anonKeyCtrl: _sbAnonKeyCtrl,
-            themeColor: _getThemeColor(),
           ),
         if (_selectedType == BackendType.managed) _buildManagedConfirmation(),
         const SizedBox(height: 32),
@@ -416,17 +413,7 @@ class _HostingWizardState extends State<HostingWizard> {
   }
 
   Color _getThemeColor() {
-    if (widget.themeColor != null) {
-      return widget.themeColor!;
-    }
-    switch (_selectedType) {
-      case BackendType.managed:
-        return const Color(0xFF6366F1);
-      case BackendType.customSupabase:
-        return const Color(0xFF3ECF8E);
-      default:
-        return const Color(0xFF3ECF8E);
-    }
+    return Theme.of(context).colorScheme.primary;
   }
 
   Widget _buildManagedConfirmation() {

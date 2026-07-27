@@ -4,7 +4,6 @@ class WizardTextField extends StatelessWidget {
   final TextEditingController controller;
   final String label;
   final String? hint;
-  final Color themeColor;
   final String? Function(String?)? validator;
 
   const WizardTextField({
@@ -12,44 +11,49 @@ class WizardTextField extends StatelessWidget {
     required this.controller,
     required this.label,
     this.hint,
-    required this.themeColor,
     this.validator,
   });
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final activeThemeColor = colorScheme.primary;
+
     return TextFormField(
       controller: controller,
       validator: validator,
-      style: const TextStyle(color: Colors.white, fontSize: 14),
+      style: TextStyle(color: colorScheme.onSurface, fontSize: 14),
       decoration: InputDecoration(
         labelText: label,
         labelStyle: TextStyle(
-          color: Colors.white.withOpacity(0.4),
+          color: colorScheme.onSurfaceVariant,
           fontSize: 13,
         ),
         hintText: hint,
         hintStyle: TextStyle(
-          color: Colors.white.withOpacity(0.25),
+          color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
           fontSize: 13,
         ),
         filled: true,
-        fillColor: const Color(0xFF262626),
+        fillColor: theme.inputDecorationTheme.fillColor ?? colorScheme.surface,
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.white.withOpacity(0.08)),
+          borderSide: BorderSide(
+            color: colorScheme.onSurface.withValues(alpha: 0.12),
+          ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: themeColor, width: 2),
+          borderSide: BorderSide(color: activeThemeColor, width: 2),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Colors.redAccent),
+          borderSide: BorderSide(color: colorScheme.error),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Colors.redAccent, width: 2),
+          borderSide: BorderSide(color: colorScheme.error, width: 2),
         ),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,

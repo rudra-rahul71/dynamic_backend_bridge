@@ -5,7 +5,6 @@ import '../auth/auth_repository.dart';
 class DynamicSignInPage extends StatefulWidget {
   final String appName;
   final Widget? appIcon;
-  final Color themeColor;
   final VoidCallback onSignInSuccess;
   final VoidCallback? onResetBackend;
 
@@ -13,7 +12,6 @@ class DynamicSignInPage extends StatefulWidget {
     super.key,
     required this.appName,
     this.appIcon,
-    required this.themeColor,
     required this.onSignInSuccess,
     this.onResetBackend,
   });
@@ -99,14 +97,21 @@ class _DynamicSignInPageState extends State<DynamicSignInPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final primaryColor = colorScheme.primary;
+
     final buttonTextColor =
-        ThemeData.estimateBrightnessForColor(widget.themeColor) ==
-            Brightness.dark
-        ? Colors.white
-        : Colors.black;
+        ThemeData.estimateBrightnessForColor(primaryColor) == Brightness.dark
+            ? Colors.white
+            : Colors.black;
+
+    final inputFillColor =
+        theme.inputDecorationTheme.fillColor ?? colorScheme.surfaceContainerHighest.withValues(alpha: 0.3);
+    final subtextColor = colorScheme.onSurfaceVariant;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -131,7 +136,7 @@ class _DynamicSignInPageState extends State<DynamicSignInPage> {
                         child: Icon(
                           Icons.check_circle_outline,
                           size: 120,
-                          color: widget.themeColor,
+                          color: primaryColor,
                         ),
                       ),
                     ),
@@ -145,7 +150,7 @@ class _DynamicSignInPageState extends State<DynamicSignInPage> {
                       fontSize: 28,
                       fontWeight: FontWeight.w900,
                       letterSpacing: 2.0,
-                      color: widget.themeColor,
+                      color: primaryColor,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -155,7 +160,7 @@ class _DynamicSignInPageState extends State<DynamicSignInPage> {
                         : 'Sign in to manage your ${widget.appName.toLowerCase()}',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.6),
+                      color: subtextColor,
                       fontSize: 14,
                     ),
                   ),
@@ -164,32 +169,32 @@ class _DynamicSignInPageState extends State<DynamicSignInPage> {
                   TextFormField(
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
-                    style: const TextStyle(color: Colors.white, fontSize: 14),
+                    style: TextStyle(color: colorScheme.onSurface, fontSize: 14),
                     decoration: InputDecoration(
                       labelText: 'Email Address',
                       labelStyle: TextStyle(
-                        color: Colors.white.withOpacity(0.4),
+                        color: subtextColor,
                         fontSize: 13,
                       ),
                       prefixIcon: Icon(
                         Icons.email_outlined,
-                        color: Colors.white.withOpacity(0.4),
+                        color: subtextColor,
                       ),
                       filled: true,
-                      fillColor: const Color(0xFF262626),
+                      fillColor: inputFillColor,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: Colors.white.withOpacity(0.08),
+                          color: colorScheme.onSurface.withValues(alpha: 0.12),
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: widget.themeColor,
+                          color: primaryColor,
                           width: 2,
                         ),
                       ),
@@ -211,23 +216,23 @@ class _DynamicSignInPageState extends State<DynamicSignInPage> {
                   TextFormField(
                     controller: _passwordController,
                     obscureText: _obscurePassword,
-                    style: const TextStyle(color: Colors.white, fontSize: 14),
+                    style: TextStyle(color: colorScheme.onSurface, fontSize: 14),
                     decoration: InputDecoration(
                       labelText: 'Password',
                       labelStyle: TextStyle(
-                        color: Colors.white.withOpacity(0.4),
+                        color: subtextColor,
                         fontSize: 13,
                       ),
                       prefixIcon: Icon(
                         Icons.lock_outlined,
-                        color: Colors.white.withOpacity(0.4),
+                        color: subtextColor,
                       ),
                       suffixIcon: IconButton(
                         icon: Icon(
                           _obscurePassword
                               ? Icons.visibility_outlined
                               : Icons.visibility_off_outlined,
-                          color: Colors.white.withOpacity(0.4),
+                          color: subtextColor,
                         ),
                         onPressed: () {
                           setState(() {
@@ -236,20 +241,20 @@ class _DynamicSignInPageState extends State<DynamicSignInPage> {
                         },
                       ),
                       filled: true,
-                      fillColor: const Color(0xFF262626),
+                      fillColor: inputFillColor,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: Colors.white.withOpacity(0.08),
+                          color: colorScheme.onSurface.withValues(alpha: 0.12),
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: widget.themeColor,
+                          color: primaryColor,
                           width: 2,
                         ),
                       ),
@@ -269,7 +274,7 @@ class _DynamicSignInPageState extends State<DynamicSignInPage> {
                   ElevatedButton(
                     onPressed: _isLoading ? null : _submit,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: widget.themeColor,
+                      backgroundColor: primaryColor,
                       foregroundColor: buttonTextColor,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
@@ -312,7 +317,7 @@ class _DynamicSignInPageState extends State<DynamicSignInPage> {
                           ? 'Already have an account? Sign In'
                           : "Don't have an account? Sign Up",
                       style: TextStyle(
-                        color: widget.themeColor,
+                        color: primaryColor,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -321,7 +326,7 @@ class _DynamicSignInPageState extends State<DynamicSignInPage> {
                   if (widget.onResetBackend != null) ...[
                     TextButton.icon(
                       style: TextButton.styleFrom(
-                        foregroundColor: Colors.white.withOpacity(0.4),
+                        foregroundColor: subtextColor,
                       ),
                       onPressed: widget.onResetBackend,
                       icon: const Icon(
@@ -329,8 +334,11 @@ class _DynamicSignInPageState extends State<DynamicSignInPage> {
                         size: 16,
                       ),
                       label: const Text(
-                        'Reset & Reconfigure Backend',
-                        style: TextStyle(fontSize: 13),
+                        'Change Backend / Host Config',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ),
                   ],

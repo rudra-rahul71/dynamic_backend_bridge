@@ -3,7 +3,6 @@ import 'package:get_it/get_it.dart';
 import '../auth/auth_repository.dart';
 
 class DynamicProfilePage extends StatefulWidget {
-  final Color? themeColor;
   final String header;
   final String sub;
   final String? userEmail;
@@ -12,7 +11,6 @@ class DynamicProfilePage extends StatefulWidget {
 
   const DynamicProfilePage({
     super.key,
-    this.themeColor,
     this.header = 'Account Settings',
     this.sub = 'Manage profile details, sessions, and log out',
     this.userEmail,
@@ -73,7 +71,7 @@ class _DynamicProfilePageState extends State<DynamicProfilePage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final primaryColor = widget.themeColor ?? theme.colorScheme.primary;
+    final primaryColor = theme.colorScheme.primary;
     final displayEmail = widget.userEmail ?? _currentUser?.email ?? 'Unknown User';
 
     return Scaffold(
