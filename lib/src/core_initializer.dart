@@ -18,6 +18,7 @@ class DynamicBackendBridge {
     required GetIt getIt,
     String? defaultSupabaseUrl,
     String? defaultSupabaseAnonKey,
+    String dbSchema = 'public',
   }) async {
     // Unregister existing services if registered (for backend hot swaps)
     if (getIt.isRegistered<AuthRepository>()) {
@@ -43,6 +44,7 @@ class DynamicBackendBridge {
     await Supabase.initialize(
       url: url,
       anonKey: anonKey,
+      postgrestOptions: PostgrestClientOptions(schema: dbSchema),
       authOptions: const FlutterAuthClientOptions(
         authFlowType: AuthFlowType.pkce,
       ),
@@ -51,7 +53,7 @@ class DynamicBackendBridge {
     final client = Supabase.instance.client;
     getIt.registerSingleton<AuthRepository>(SupabaseAuthImpl(client: client));
     getIt.registerSingleton<DatabaseRepository>(
-      SupabaseDatabaseImpl(client: client),
+      SupabaseDatabaseImpl(client: client, schema: dbSchema),
     );
   }
 }

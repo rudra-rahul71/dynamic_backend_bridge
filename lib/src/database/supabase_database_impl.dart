@@ -27,8 +27,15 @@ Map<String, dynamic> _serializeDateTimes(Map<String, dynamic> map) {
 
 class SupabaseDatabaseImpl implements DatabaseRepository {
   final SupabaseClient client;
+  final String schema;
 
-  SupabaseDatabaseImpl({required this.client});
+  SupabaseDatabaseImpl({required this.client, this.schema = 'public'});
+
+  SupabaseQueryBuilder _from(String collection) {
+    return schema == 'public'
+        ? client.from(collection)
+        : client.schema(schema).from(collection);
+  }
 
   @override
   Future<void> saveMap({
@@ -40,7 +47,7 @@ class SupabaseDatabaseImpl implements DatabaseRepository {
     if (id.isNotEmpty && !payload.containsKey('id')) {
       payload['id'] = id;
     }
-    await client.from(collection).upsert(payload);
+    await _from(collection).upsert(payload);
   }
 
   @override
@@ -48,7 +55,7 @@ class SupabaseDatabaseImpl implements DatabaseRepository {
     required String collection,
     List<QueryFilter>? filters,
   }) async {
-    dynamic query = client.from(collection).select();
+    dynamic query = _from(collection).select();
     if (filters != null && filters.isNotEmpty) {
       for (final filter in filters) {
         query = switch (filter.operator) {
@@ -83,9 +90,7 @@ class SupabaseDatabaseImpl implements DatabaseRepository {
     List<QueryFilter>? filters,
     List<String> primaryKey = const ['id'],
   }) {
-    dynamic filterBuilder = client
-        .from(collection)
-        .stream(primaryKey: primaryKey);
+    dynamic filterBuilder = _from(collection).stream(primaryKey: primaryKey);
 
     if (filters != null && filters.isNotEmpty) {
       for (final filter in filters) {
@@ -133,6 +138,6 @@ class SupabaseDatabaseImpl implements DatabaseRepository {
     String primaryKey = 'id',
   }) async {
     final parsedId = int.tryParse(id) ?? id;
-    await client.from(collection).delete().eq(primaryKey, parsedId);
+    await _from(collection).delete().eq(primaryKey, parsedId);
   }
 }
