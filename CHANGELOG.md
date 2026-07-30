@@ -1,3 +1,10 @@
+## 0.0.6
+
+* Added built-in `ProfilePage` UI component for managing user profile details and backend configuration.
+* Introduced custom `AppTheme` configuration for consistent styling across UI components.
+* Improved responsive layout behavior in `HostingWizard`.
+* Updated database schema inspection and query handling.
+
 ## 0.0.5
 
 * Updated core package dependencies to latest releases (`flutter_secure_storage` ^10.3.1, `supabase_flutter` ^2.16.0, `get_it` ^9.2.1, `shared_preferences` ^2.5.5).
