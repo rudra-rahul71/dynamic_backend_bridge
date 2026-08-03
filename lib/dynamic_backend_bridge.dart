@@ -1,5 +1,6 @@
 export 'src/models/app_config.dart';
 export 'src/services/config_service.dart';
+export 'src/services/notification_service.dart';
 export 'src/core_initializer.dart';
 export 'src/auth/auth_repository.dart';
 export 'src/database/database_repository.dart';
@@ -9,5 +10,3 @@ export 'src/theme/app_theme.dart';
 export 'src/ui/hosting_wizard.dart';
 export 'src/ui/sign_in_page.dart';
 export 'src/ui/profile_page.dart';
-
-

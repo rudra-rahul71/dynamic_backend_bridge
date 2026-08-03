@@ -25,8 +25,11 @@ class AppTheme {
   }) {
     final bool isDark = brightness == Brightness.dark;
 
-    final Color defaultSurface = surface ?? (isDark ? const Color(0xFF1E1E1E) : Colors.white);
-    final Color defaultScaffold = scaffoldBackgroundColor ?? (isDark ? const Color(0xFF121212) : const Color(0xFFF8F9FA));
+    final Color defaultSurface =
+        surface ?? (isDark ? const Color(0xFF1E1E1E) : Colors.white);
+    final Color defaultScaffold =
+        scaffoldBackgroundColor ??
+        (isDark ? const Color(0xFF121212) : const Color(0xFFF8F9FA));
 
     final ColorScheme colorScheme = ColorScheme.fromSeed(
       seedColor: primarySeed,
@@ -35,9 +38,12 @@ class AppTheme {
       onPrimary: onPrimary ?? (isDark ? Colors.black : Colors.white),
       secondary: secondary,
       onSecondary: onSecondary,
-      tertiary: tertiary ?? (isDark ? const Color(0xFF26A69A) : const Color(0xFF006A60)),
+      tertiary:
+          tertiary ??
+          (isDark ? const Color(0xFF26A69A) : const Color(0xFF006A60)),
       onTertiary: onTertiary ?? (isDark ? Colors.black : Colors.white),
-      error: error ?? (isDark ? const Color(0xFFEF5350) : const Color(0xFFBA1A1A)),
+      error:
+          error ?? (isDark ? const Color(0xFFEF5350) : const Color(0xFFBA1A1A)),
       onError: onError ?? (isDark ? Colors.black : Colors.white),
       surface: defaultSurface,
       onSurface: onSurface ?? (isDark ? Colors.white : Colors.black87),
@@ -50,14 +56,21 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: isDark ? const Color(0xFF262626) : const Color(0xFFF0F0F0),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: colorScheme.onSurface.withValues(alpha: 0.12)),
+          borderSide: BorderSide(
+            color: colorScheme.onSurface.withValues(alpha: 0.12),
+          ),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: colorScheme.onSurface.withValues(alpha: 0.12)),
+          borderSide: BorderSide(
+            color: colorScheme.onSurface.withValues(alpha: 0.12),
+          ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),

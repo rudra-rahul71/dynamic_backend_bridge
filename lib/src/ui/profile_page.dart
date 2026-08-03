@@ -72,7 +72,8 @@ class _DynamicProfilePageState extends State<DynamicProfilePage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final primaryColor = theme.colorScheme.primary;
-    final displayEmail = widget.userEmail ?? _currentUser?.email ?? 'Unknown User';
+    final displayEmail =
+        widget.userEmail ?? _currentUser?.email ?? 'Unknown User';
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -145,7 +146,9 @@ class _DynamicProfilePageState extends State<DynamicProfilePage> {
             // Sign Out Button matching original design
             ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
-                backgroundColor: theme.colorScheme.errorContainer.withValues(alpha: 0.2),
+                backgroundColor: theme.colorScheme.errorContainer.withValues(
+                  alpha: 0.2,
+                ),
                 foregroundColor: theme.colorScheme.error,
                 side: BorderSide(
                   color: theme.colorScheme.error.withValues(alpha: 0.5),

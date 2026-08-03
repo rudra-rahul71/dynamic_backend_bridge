@@ -103,11 +103,12 @@ class _DynamicSignInPageState extends State<DynamicSignInPage> {
 
     final buttonTextColor =
         ThemeData.estimateBrightnessForColor(primaryColor) == Brightness.dark
-            ? Colors.white
-            : Colors.black;
+        ? Colors.white
+        : Colors.black;
 
     final inputFillColor =
-        theme.inputDecorationTheme.fillColor ?? colorScheme.surfaceContainerHighest.withValues(alpha: 0.3);
+        theme.inputDecorationTheme.fillColor ??
+        colorScheme.surfaceContainerHighest.withValues(alpha: 0.3);
     final subtextColor = colorScheme.onSurfaceVariant;
 
     return Scaffold(
@@ -159,23 +160,20 @@ class _DynamicSignInPageState extends State<DynamicSignInPage> {
                         ? 'Create your account to get started'
                         : 'Sign in to manage your ${widget.appName.toLowerCase()}',
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: subtextColor,
-                      fontSize: 14,
-                    ),
+                    style: TextStyle(color: subtextColor, fontSize: 14),
                   ),
                   const SizedBox(height: 32),
                   // Email Field
                   TextFormField(
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
-                    style: TextStyle(color: colorScheme.onSurface, fontSize: 14),
+                    style: TextStyle(
+                      color: colorScheme.onSurface,
+                      fontSize: 14,
+                    ),
                     decoration: InputDecoration(
                       labelText: 'Email Address',
-                      labelStyle: TextStyle(
-                        color: subtextColor,
-                        fontSize: 13,
-                      ),
+                      labelStyle: TextStyle(color: subtextColor, fontSize: 13),
                       prefixIcon: Icon(
                         Icons.email_outlined,
                         color: subtextColor,
@@ -193,10 +191,7 @@ class _DynamicSignInPageState extends State<DynamicSignInPage> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(
-                          color: primaryColor,
-                          width: 2,
-                        ),
+                        borderSide: BorderSide(color: primaryColor, width: 2),
                       ),
                     ),
                     validator: (value) {
@@ -216,13 +211,13 @@ class _DynamicSignInPageState extends State<DynamicSignInPage> {
                   TextFormField(
                     controller: _passwordController,
                     obscureText: _obscurePassword,
-                    style: TextStyle(color: colorScheme.onSurface, fontSize: 14),
+                    style: TextStyle(
+                      color: colorScheme.onSurface,
+                      fontSize: 14,
+                    ),
                     decoration: InputDecoration(
                       labelText: 'Password',
-                      labelStyle: TextStyle(
-                        color: subtextColor,
-                        fontSize: 13,
-                      ),
+                      labelStyle: TextStyle(color: subtextColor, fontSize: 13),
                       prefixIcon: Icon(
                         Icons.lock_outlined,
                         color: subtextColor,
@@ -253,10 +248,7 @@ class _DynamicSignInPageState extends State<DynamicSignInPage> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(
-                          color: primaryColor,
-                          width: 2,
-                        ),
+                        borderSide: BorderSide(color: primaryColor, width: 2),
                       ),
                     ),
                     validator: (value) {

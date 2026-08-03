@@ -6,6 +6,7 @@ import 'auth/supabase_auth_impl.dart';
 import 'database/database_repository.dart';
 import 'database/supabase_database_impl.dart';
 import 'models/app_config.dart';
+import 'services/notification_service.dart';
 
 class DynamicBackendBridge {
   /// Initializes Supabase auth and database implementations dynamically, and registers them
@@ -19,6 +20,10 @@ class DynamicBackendBridge {
     String? defaultSupabaseUrl,
     String? defaultSupabaseAnonKey,
     String dbSchema = 'public',
+    String defaultNotificationChannelId = 'default_channel',
+    String defaultNotificationChannelName = 'Default Notifications',
+    String defaultNotificationChannelDesc = 'Default app notifications',
+    String defaultAndroidIcon = '@mipmap/ic_launcher',
   }) async {
     // Unregister existing services if registered (for backend hot swaps)
     if (getIt.isRegistered<AuthRepository>()) {
@@ -30,6 +35,22 @@ class DynamicBackendBridge {
     if (getIt.isRegistered<DatabaseRepository>()) {
       await getIt.unregister<DatabaseRepository>();
     }
+
+    // Register notification service singleton (interface & implementation)
+    if (!getIt.isRegistered<NotificationService>()) {
+      final notifService = LocalNotificationService();
+      getIt.registerSingleton<NotificationService>(notifService);
+      if (!getIt.isRegistered<LocalNotificationService>()) {
+        getIt.registerSingleton<LocalNotificationService>(notifService);
+      }
+    }
+
+    await getIt<NotificationService>().initialize(
+      defaultChannelId: defaultNotificationChannelId,
+      defaultChannelName: defaultNotificationChannelName,
+      defaultChannelDescription: defaultNotificationChannelDesc,
+      defaultAndroidIcon: defaultAndroidIcon,
+    );
 
     // Dispose existing Supabase instance if previously initialized to allow hot swapping backend endpoints
     try {
