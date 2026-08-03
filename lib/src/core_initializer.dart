@@ -23,7 +23,7 @@ class DynamicBackendBridge {
     String defaultNotificationChannelId = 'default_channel',
     String defaultNotificationChannelName = 'Default Notifications',
     String defaultNotificationChannelDesc = 'Default app notifications',
-    String defaultAndroidIcon = '@mipmap/ic_launcher',
+    String defaultAndroidIcon = 'app_icon',
   }) async {
     // Unregister existing services if registered (for backend hot swaps)
     if (getIt.isRegistered<AuthRepository>()) {

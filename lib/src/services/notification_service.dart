@@ -14,7 +14,7 @@ abstract class NotificationService {
     String defaultChannelId = 'default_channel',
     String defaultChannelName = 'Default Notifications',
     String defaultChannelDescription = 'Default app notifications',
-    String defaultAndroidIcon = '@mipmap/ic_launcher',
+    String defaultAndroidIcon = 'app_icon',
   });
 
   /// Requests notification and alarm permissions from the operating system.
@@ -58,14 +58,14 @@ class LocalNotificationService implements NotificationService {
   String defaultChannelId = 'default_channel';
   String defaultChannelName = 'Default Notifications';
   String defaultChannelDescription = 'Default app notifications';
-  String defaultAndroidIcon = '@mipmap/ic_launcher';
+  String defaultAndroidIcon = 'app_icon';
 
   @override
   Future<void> initialize({
     String defaultChannelId = 'default_channel',
     String defaultChannelName = 'Default Notifications',
     String defaultChannelDescription = 'Default app notifications',
-    String defaultAndroidIcon = '@mipmap/ic_launcher',
+    String defaultAndroidIcon = 'app_icon',
   }) async {
     this.defaultChannelId = defaultChannelId;
     this.defaultChannelName = defaultChannelName;
