@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -7,11 +8,18 @@ abstract class RemoteNotificationService {
   Future<String?> getToken();
   Future<void> deleteToken();
   Stream<String> get onTokenRefresh;
+  Stream<RemoteMessage> get onForegroundMessage;
 }
 
 class FCMNotificationService implements RemoteNotificationService {
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+  final StreamController<RemoteMessage> _foregroundMessageController =
+      StreamController<RemoteMessage>.broadcast();
   bool _isInitialized = false;
+
+  @override
+  Stream<RemoteMessage> get onForegroundMessage =>
+      _foregroundMessageController.stream;
 
   @override
   Future<void> initialize() async {
@@ -29,16 +37,17 @@ class FCMNotificationService implements RemoteNotificationService {
         sound: true,
       );
 
-      // Handle foreground messages if needed
+      // Handle foreground messages
       FirebaseMessaging.onMessage.listen((RemoteMessage message) {
         debugPrint('Got a message whilst in the foreground!');
         debugPrint('Message data: ${message.data}');
 
         if (message.notification != null) {
-          debugPrint('Message also contained a notification: ${message.notification}');
-          // Note: In a complete implementation, you'd trigger local notifications here
-          // using LocalNotificationService if you want to show it in the foreground.
+          debugPrint(
+              'Message also contained a notification: ${message.notification}');
         }
+
+        _foregroundMessageController.add(message);
       });
 
       _isInitialized = true;
@@ -61,7 +70,8 @@ class FCMNotificationService implements RemoteNotificationService {
         }
 
         if (apnsToken == null) {
-          debugPrint('APNS token is not set yet (likely on Simulator). Skipping FCM token fetch.');
+          debugPrint(
+              'APNS token is not set yet (likely on Simulator). Skipping FCM token fetch.');
           return null;
         }
       }
