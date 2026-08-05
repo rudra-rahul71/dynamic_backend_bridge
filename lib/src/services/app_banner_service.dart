@@ -12,6 +12,10 @@ class AppBannerService {
 
   static AppBannerService get instance => _instance;
 
+  /// Global navigator key that apps can set on MaterialApp/GoRouter for context-less banner display.
+  static final GlobalKey<NavigatorState> navigatorKey =
+      GlobalKey<NavigatorState>();
+
   OverlayEntry? _currentOverlayEntry;
   Timer? _dismissTimer;
   GlobalKey<AppBannerWidgetState>? _currentKey;
@@ -35,7 +39,7 @@ class AppBannerService {
 
   /// Displays a success banner message.
   static void showSuccess(
-    BuildContext context,
+    BuildContext? context,
     String message, {
     String? title,
     Duration? duration,
@@ -51,7 +55,7 @@ class AppBannerService {
 
   /// Displays an error banner message.
   static void showError(
-    BuildContext context,
+    BuildContext? context,
     String message, {
     String? title,
     Duration? duration,
@@ -67,7 +71,7 @@ class AppBannerService {
 
   /// Displays an informational banner message with optional custom data and tap action.
   static void showInfo(
-    BuildContext context, {
+    BuildContext? context, {
     required String title,
     String? body,
     Map<String, dynamic>? data,
@@ -88,7 +92,7 @@ class AppBannerService {
   }
 
   void _showBanner({
-    required BuildContext context,
+    BuildContext? context,
     required AppBannerType type,
     required String title,
     String? body,
@@ -98,8 +102,21 @@ class AppBannerService {
     // Immediately remove existing overlay if present before showing a new banner
     _removeOverlayImmediately();
 
-    final overlayState =
-        Overlay.maybeOf(context, rootOverlay: true) ?? Overlay.of(context);
+    final targetContext = context ?? navigatorKey.currentContext;
+    OverlayState? overlayState;
+    if (targetContext != null) {
+      overlayState =
+          Overlay.maybeOf(targetContext, rootOverlay: true) ??
+          Overlay.maybeOf(targetContext);
+    }
+    overlayState ??= navigatorKey.currentState?.overlay;
+
+    if (overlayState == null) {
+      debugPrint(
+        'AppBannerService warning: Could not locate OverlayState to display banner.',
+      );
+      return;
+    }
 
     final key = GlobalKey<AppBannerWidgetState>();
     _currentKey = key;

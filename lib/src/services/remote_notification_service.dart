@@ -1,25 +1,18 @@
-import 'dart:async';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'app_banner_service.dart';
 
 abstract class RemoteNotificationService {
   Future<void> initialize();
   Future<String?> getToken();
   Future<void> deleteToken();
   Stream<String> get onTokenRefresh;
-  Stream<RemoteMessage> get onForegroundMessage;
 }
 
 class FCMNotificationService implements RemoteNotificationService {
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
-  final StreamController<RemoteMessage> _foregroundMessageController =
-      StreamController<RemoteMessage>.broadcast();
   bool _isInitialized = false;
-
-  @override
-  Stream<RemoteMessage> get onForegroundMessage =>
-      _foregroundMessageController.stream;
 
   @override
   Future<void> initialize() async {
@@ -37,9 +30,23 @@ class FCMNotificationService implements RemoteNotificationService {
         sound: true,
       );
 
-      // Handle foreground messages
+      // Trigger top in-app banner directly on foreground push notifications
       FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-        _foregroundMessageController.add(message);
+        debugPrint('Got a message whilst in the foreground!');
+        debugPrint('Message data: ${message.data}');
+
+        final title =
+            message.notification?.title ??
+            message.data['title'] ??
+            'Notification';
+        final body = message.notification?.body ?? message.data['body'];
+
+        AppBannerService.showInfo(
+          null,
+          title: title,
+          body: body,
+          data: message.data,
+        );
       });
 
       _isInitialized = true;
