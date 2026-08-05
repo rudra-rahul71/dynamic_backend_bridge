@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import '../auth/auth_repository.dart';
+import '../services/app_banner_service.dart';
 
 class DynamicSignInPage extends StatefulWidget {
   final String appName;
@@ -52,11 +53,10 @@ class _DynamicSignInPageState extends State<DynamicSignInPage> {
       if (_isSignUp) {
         user = await authRepo.signUp(email, password);
         if (mounted && user != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('User successfully created!'),
-              backgroundColor: Colors.greenAccent,
-            ),
+          AppBannerService.showSuccess(
+            context,
+            'User successfully created!',
+            title: 'Success',
           );
         }
       } else {
@@ -67,23 +67,19 @@ class _DynamicSignInPageState extends State<DynamicSignInPage> {
         if (user != null) {
           widget.onSignInSuccess();
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(
-                'Authentication failed. Please verify credentials.',
-              ),
-              backgroundColor: Colors.redAccent,
-            ),
+          AppBannerService.showError(
+            context,
+            'Authentication failed. Please verify credentials.',
+            title: 'Authentication Failed',
           );
         }
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: ${e.toString()}'),
-            backgroundColor: Colors.redAccent,
-          ),
+        AppBannerService.showError(
+          context,
+          'Error: ${e.toString()}',
+          title: 'Error',
         );
       }
     } finally {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import '../auth/auth_repository.dart';
+import '../services/app_banner_service.dart';
 
 class DynamicProfilePage extends StatefulWidget {
   final String header;
@@ -52,11 +53,10 @@ class _DynamicProfilePageState extends State<DynamicProfilePage> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Sign out error: ${e.toString()}'),
-            backgroundColor: Colors.redAccent,
-          ),
+        AppBannerService.showError(
+          context,
+          'Sign out error: ${e.toString()}',
+          title: 'Error',
         );
       }
     } finally {

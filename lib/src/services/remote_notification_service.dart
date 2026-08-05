@@ -39,14 +39,6 @@ class FCMNotificationService implements RemoteNotificationService {
 
       // Handle foreground messages
       FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-        debugPrint('Got a message whilst in the foreground!');
-        debugPrint('Message data: ${message.data}');
-
-        if (message.notification != null) {
-          debugPrint(
-              'Message also contained a notification: ${message.notification}');
-        }
-
         _foregroundMessageController.add(message);
       });
 
@@ -71,7 +63,8 @@ class FCMNotificationService implements RemoteNotificationService {
 
         if (apnsToken == null) {
           debugPrint(
-              'APNS token is not set yet (likely on Simulator). Skipping FCM token fetch.');
+            'APNS token is not set yet (likely on Simulator). Skipping FCM token fetch.',
+          );
           return null;
         }
       }

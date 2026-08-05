@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/app_config.dart';
 import '../services/config_service.dart';
+import '../services/app_banner_service.dart';
 import 'widgets/supabase_config_form.dart';
 
 class HostingWizard extends StatefulWidget {
@@ -74,23 +75,20 @@ class _HostingWizardState extends State<HostingWizard> {
       await widget.configService.saveConfig(config);
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Configuration saved successfully!'),
-            backgroundColor: Colors.greenAccent,
-          ),
+        AppBannerService.showSuccess(
+          context,
+          'Configuration saved successfully!',
+          title: 'Success',
         );
       }
 
       widget.onComplete(config);
     } else {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Validation failed: $errorMsg'),
-            backgroundColor: Colors.redAccent,
-            duration: const Duration(seconds: 5),
-          ),
+        AppBannerService.showError(
+          context,
+          'Validation failed: $errorMsg',
+          title: 'Validation Failed',
         );
         setState(() => _isValidating = false);
       }
