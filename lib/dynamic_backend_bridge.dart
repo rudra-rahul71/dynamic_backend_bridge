@@ -1,6 +1,7 @@
 export 'src/models/app_config.dart';
 export 'src/services/config_service.dart';
 export 'src/services/notification_service.dart';
+export 'src/services/remote_notification_service.dart';
 export 'src/core_initializer.dart';
 export 'src/auth/auth_repository.dart';
 export 'src/database/database_repository.dart';

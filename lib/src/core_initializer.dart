@@ -7,6 +7,7 @@ import 'database/database_repository.dart';
 import 'database/supabase_database_impl.dart';
 import 'models/app_config.dart';
 import 'services/notification_service.dart';
+import 'services/remote_notification_service.dart';
 
 class DynamicBackendBridge {
   /// Initializes Supabase auth and database implementations dynamically, and registers them
@@ -24,11 +25,17 @@ class DynamicBackendBridge {
     String defaultNotificationChannelName = 'Default Notifications',
     String defaultNotificationChannelDesc = 'Default app notifications',
     String defaultAndroidIcon = 'app_icon',
+    bool enableRemoteNotifications = false,
+    String? appId,
   }) async {
     // Unregister existing services if registered (for backend hot swaps)
     if (getIt.isRegistered<AuthRepository>()) {
       try {
-        await getIt<AuthRepository>().signOut();
+        final oldAuth = getIt<AuthRepository>();
+        await oldAuth.signOut();
+        if (oldAuth is SupabaseAuthImpl) {
+          oldAuth.dispose();
+        }
       } catch (_) {}
       await getIt.unregister<AuthRepository>();
     }
@@ -52,6 +59,17 @@ class DynamicBackendBridge {
       defaultAndroidIcon: defaultAndroidIcon,
     );
 
+    RemoteNotificationService? remoteNotifService;
+    if (enableRemoteNotifications) {
+      if (!getIt.isRegistered<RemoteNotificationService>()) {
+        remoteNotifService = FCMNotificationService();
+        getIt.registerSingleton<RemoteNotificationService>(remoteNotifService);
+      } else {
+        remoteNotifService = getIt<RemoteNotificationService>();
+      }
+      await remoteNotifService.initialize();
+    }
+
     // Dispose existing Supabase instance if previously initialized to allow hot swapping backend endpoints
     try {
       await Supabase.instance.dispose();
@@ -72,7 +90,13 @@ class DynamicBackendBridge {
     );
 
     final client = Supabase.instance.client;
-    getIt.registerSingleton<AuthRepository>(SupabaseAuthImpl(client: client));
+    getIt.registerSingleton<AuthRepository>(
+      SupabaseAuthImpl(
+        client: client,
+        remoteNotificationService: remoteNotifService,
+        appId: appId,
+      ),
+    );
     getIt.registerSingleton<DatabaseRepository>(
       SupabaseDatabaseImpl(client: client, schema: dbSchema),
     );
