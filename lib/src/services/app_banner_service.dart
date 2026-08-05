@@ -17,30 +17,30 @@ class AppBannerService {
   GlobalKey<AppBannerWidgetState>? _currentKey;
 
   /// Programmatically hides the currently visible banner with a slide-up exit animation.
-  void hideCurrentBanner() {
-    _dismissTimer?.cancel();
-    _dismissTimer = null;
+  static void hideCurrentBanner() {
+    _instance._dismissTimer?.cancel();
+    _instance._dismissTimer = null;
 
-    if (_currentKey?.currentState != null) {
-      final state = _currentKey!.currentState;
-      _currentKey = null;
+    if (_instance._currentKey?.currentState != null) {
+      final state = _instance._currentKey!.currentState;
+      _instance._currentKey = null;
       state?.dismiss();
-    } else if (_currentOverlayEntry != null) {
-      if (_currentOverlayEntry!.mounted) {
-        _currentOverlayEntry!.remove();
+    } else if (_instance._currentOverlayEntry != null) {
+      if (_instance._currentOverlayEntry!.mounted) {
+        _instance._currentOverlayEntry!.remove();
       }
-      _currentOverlayEntry = null;
+      _instance._currentOverlayEntry = null;
     }
   }
 
   /// Displays a success banner message.
-  void showSuccess(
+  static void showSuccess(
     BuildContext context,
     String message, {
     String? title,
     Duration? duration,
   }) {
-    _showBanner(
+    _instance._showBanner(
       context: context,
       type: AppBannerType.success,
       title: title ?? 'Success',
@@ -50,13 +50,13 @@ class AppBannerService {
   }
 
   /// Displays an error banner message.
-  void showError(
+  static void showError(
     BuildContext context,
     String message, {
     String? title,
     Duration? duration,
   }) {
-    _showBanner(
+    _instance._showBanner(
       context: context,
       type: AppBannerType.error,
       title: title ?? 'Error',
@@ -66,7 +66,7 @@ class AppBannerService {
   }
 
   /// Displays an informational banner message with optional custom data and tap action.
-  void showInfo(
+  static void showInfo(
     BuildContext context, {
     required String title,
     String? body,
@@ -74,7 +74,7 @@ class AppBannerService {
     VoidCallback? onTap,
     Duration? duration,
   }) {
-    _showBanner(
+    _instance._showBanner(
       context: context,
       type: AppBannerType.info,
       title: title,

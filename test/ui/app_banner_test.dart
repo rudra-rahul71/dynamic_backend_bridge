@@ -66,8 +66,6 @@ void main() {
 
   group('AppBannerService overlay tests', () {
     testWidgets('shows and hides banner using AppBannerService', (tester) async {
-      final bannerService = AppBannerService();
-
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -75,7 +73,7 @@ void main() {
               builder: (context) {
                 return ElevatedButton(
                   onPressed: () {
-                    bannerService.showSuccess(
+                    AppBannerService.showSuccess(
                       context,
                       'Test banner body',
                       title: 'Test Banner Title',
@@ -95,7 +93,7 @@ void main() {
       expect(find.text('Test Banner Title'), findsOneWidget);
       expect(find.text('Test banner body'), findsOneWidget);
 
-      bannerService.hideCurrentBanner();
+      AppBannerService.hideCurrentBanner();
       await tester.pumpAndSettle();
 
       expect(find.text('Test Banner Title'), findsNothing);
