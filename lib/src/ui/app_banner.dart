@@ -136,108 +136,94 @@ class AppBannerWidgetState extends State<AppBannerWidget>
               color: theme.colorScheme.surface,
               borderRadius: BorderRadius.circular(12.0),
               border: Border.all(
-                color: accentColor.withOpacity(0.25),
-                width: 1.0,
+                color: accentColor.withOpacity(0.45),
+                width: 1.5,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 10.0,
+                  color: Colors.black.withOpacity(0.15),
+                  blurRadius: 12.0,
                   offset: const Offset(0, 4),
                 ),
               ],
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(12.0),
-              child: IntrinsicHeight(
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Subtle accent indicator bar
+                    // Type accent icon
                     Container(
-                      width: 4.0,
-                      color: accentColor,
+                      padding: const EdgeInsets.all(6.0),
+                      decoration: BoxDecoration(
+                        color: accentColor.withOpacity(0.12),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        _getIcon(),
+                        color: accentColor,
+                        size: 20.0,
+                      ),
                     ),
+                    const SizedBox(width: 12.0),
+                    // Title & Body
                     Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Type accent icon
-                            Container(
-                              padding: const EdgeInsets.all(6.0),
-                              decoration: BoxDecoration(
-                                color: accentColor.withOpacity(0.12),
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(
-                                _getIcon(),
-                                color: accentColor,
-                                size: 20.0,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.title,
+                            style: theme.textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: theme.colorScheme.onSurface,
+                            ),
+                          ),
+                          if (widget.body != null &&
+                              widget.body!.isNotEmpty) ...[
+                            const SizedBox(height: 4.0),
+                            Text(
+                              widget.body!,
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.onSurface
+                                    .withOpacity(0.8),
                               ),
                             ),
-                            const SizedBox(width: 12.0),
-                            // Title & Body
-                            Expanded(
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    widget.title,
-                                    style: theme.textTheme.titleSmall?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      color: theme.colorScheme.onSurface,
-                                    ),
-                                  ),
-                                  if (widget.body != null &&
-                                      widget.body!.isNotEmpty) ...[
-                                    const SizedBox(height: 4.0),
-                                    Text(
-                                      widget.body!,
-                                      style: theme.textTheme.bodySmall?.copyWith(
-                                        color: theme.colorScheme.onSurface
-                                            .withOpacity(0.8),
-                                      ),
-                                    ),
-                                  ],
-                                  if (widget.actionLabel != null &&
-                                      widget.actionLabel!.isNotEmpty) ...[
-                                    const SizedBox(height: 6.0),
-                                    GestureDetector(
-                                      onTap: widget.onActionTap,
-                                      child: Text(
-                                        widget.actionLabel!,
-                                        style: theme.textTheme.labelMedium?.copyWith(
-                                          color: accentColor,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ],
-                              ),
-                            ),
-                            const SizedBox(width: 8.0),
-                            // Close button
+                          ],
+                          if (widget.actionLabel != null &&
+                              widget.actionLabel!.isNotEmpty) ...[
+                            const SizedBox(height: 6.0),
                             GestureDetector(
-                              onTap: () {
-                                widget.onClose?.call();
-                                dismiss();
-                              },
-                              behavior: HitTestBehavior.opaque,
-                              child: Padding(
-                                padding: const EdgeInsets.all(4.0),
-                                child: Icon(
-                                  Icons.close_rounded,
-                                  size: 18.0,
-                                  color: theme.colorScheme.onSurface
-                                      .withOpacity(0.5),
+                              onTap: widget.onActionTap,
+                              child: Text(
+                                widget.actionLabel!,
+                                style: theme.textTheme.labelMedium?.copyWith(
+                                  color: accentColor,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ),
                           ],
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8.0),
+                    // Close button
+                    GestureDetector(
+                      onTap: () {
+                        widget.onClose?.call();
+                        dismiss();
+                      },
+                      behavior: HitTestBehavior.opaque,
+                      child: Padding(
+                        padding: const EdgeInsets.all(4.0),
+                        child: Icon(
+                          Icons.close_rounded,
+                          size: 18.0,
+                          color: theme.colorScheme.onSurface
+                              .withOpacity(0.5),
                         ),
                       ),
                     ),
