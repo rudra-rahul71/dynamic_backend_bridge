@@ -13,3 +13,4 @@ export 'src/ui/hosting_wizard.dart';
 export 'src/ui/sign_in_page.dart';
 export 'src/ui/profile_page.dart';
 export 'src/ui/app_banner.dart';
+export 'package:firebase_messaging/firebase_messaging.dart' show RemoteMessage;

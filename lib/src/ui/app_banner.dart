@@ -151,7 +151,7 @@ class AppBannerWidgetState extends State<AppBannerWidget>
               borderRadius: BorderRadius.circular(12.0),
               child: IntrinsicHeight(
                 child: Row(
-                  crossAxisAlignment: CrossAlignment.stretch,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     // Subtle accent indicator bar
                     Container(
@@ -162,7 +162,7 @@ class AppBannerWidgetState extends State<AppBannerWidget>
                       child: Padding(
                         padding: const EdgeInsets.all(12.0),
                         child: Row(
-                          crossAxisAlignment: CrossAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             // Type accent icon
                             Container(
@@ -182,7 +182,7 @@ class AppBannerWidgetState extends State<AppBannerWidget>
                             Expanded(
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
                                     widget.title,
