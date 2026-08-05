@@ -152,7 +152,7 @@ class AppBannerWidgetState extends State<AppBannerWidget>
               child: Padding(
                 padding: const EdgeInsets.all(12.0),
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     // Type accent icon
                     Container(
