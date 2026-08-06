@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'app_banner_service.dart';
 
 abstract class RemoteNotificationService {
   Future<void> initialize();
@@ -29,16 +30,23 @@ class FCMNotificationService implements RemoteNotificationService {
         sound: true,
       );
 
-      // Handle foreground messages if needed
+      // Trigger top in-app banner directly on foreground push notifications
       FirebaseMessaging.onMessage.listen((RemoteMessage message) {
         debugPrint('Got a message whilst in the foreground!');
         debugPrint('Message data: ${message.data}');
 
-        if (message.notification != null) {
-          debugPrint('Message also contained a notification: ${message.notification}');
-          // Note: In a complete implementation, you'd trigger local notifications here
-          // using LocalNotificationService if you want to show it in the foreground.
-        }
+        final title =
+            message.notification?.title ??
+            message.data['title'] ??
+            'Notification';
+        final body = message.notification?.body ?? message.data['body'];
+
+        AppBannerService.showInfo(
+          null,
+          title: title,
+          body: body,
+          data: message.data,
+        );
       });
 
       _isInitialized = true;
@@ -61,7 +69,9 @@ class FCMNotificationService implements RemoteNotificationService {
         }
 
         if (apnsToken == null) {
-          debugPrint('APNS token is not set yet (likely on Simulator). Skipping FCM token fetch.');
+          debugPrint(
+            'APNS token is not set yet (likely on Simulator). Skipping FCM token fetch.',
+          );
           return null;
         }
       }
