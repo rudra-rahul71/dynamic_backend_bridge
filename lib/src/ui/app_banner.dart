@@ -50,14 +50,14 @@ class AppBannerWidgetState extends State<AppBannerWidget>
       duration: widget.animationDuration,
     );
 
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0.0, -1.0),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeOutCubic,
-      reverseCurve: Curves.easeInCubic,
-    ));
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0.0, -1.0), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: _controller,
+            curve: Curves.easeOutCubic,
+            reverseCurve: Curves.easeInCubic,
+          ),
+        );
 
     _fadeAnimation = CurvedAnimation(
       parent: _controller,
@@ -125,7 +125,8 @@ class AppBannerWidgetState extends State<AppBannerWidget>
             }
           },
           onVerticalDragEnd: (details) {
-            if (details.primaryVelocity != null && details.primaryVelocity! < -100) {
+            if (details.primaryVelocity != null &&
+                details.primaryVelocity! < -100) {
               dismiss();
             }
           },
@@ -161,11 +162,7 @@ class AppBannerWidgetState extends State<AppBannerWidget>
                         color: accentColor.withOpacity(0.12),
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(
-                        _getIcon(),
-                        color: accentColor,
-                        size: 20.0,
-                      ),
+                      child: Icon(_getIcon(), color: accentColor, size: 20.0),
                     ),
                     const SizedBox(width: 12.0),
                     // Title & Body
@@ -187,8 +184,9 @@ class AppBannerWidgetState extends State<AppBannerWidget>
                             Text(
                               widget.body!,
                               style: theme.textTheme.bodySmall?.copyWith(
-                                color: theme.colorScheme.onSurface
-                                    .withOpacity(0.8),
+                                color: theme.colorScheme.onSurface.withOpacity(
+                                  0.8,
+                                ),
                               ),
                             ),
                           ],
@@ -222,8 +220,7 @@ class AppBannerWidgetState extends State<AppBannerWidget>
                         child: Icon(
                           Icons.close_rounded,
                           size: 18.0,
-                          color: theme.colorScheme.onSurface
-                              .withOpacity(0.5),
+                          color: theme.colorScheme.onSurface.withOpacity(0.5),
                         ),
                       ),
                     ),

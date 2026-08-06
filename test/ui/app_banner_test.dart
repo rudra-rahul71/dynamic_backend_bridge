@@ -65,7 +65,9 @@ void main() {
   });
 
   group('AppBannerService overlay tests', () {
-    testWidgets('shows and hides banner using AppBannerService', (tester) async {
+    testWidgets('shows and hides banner using AppBannerService', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
