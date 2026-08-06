@@ -3,37 +3,24 @@ import 'package:flutter/material.dart';
 import '../ui/app_banner.dart';
 
 /// Overlay manager service to display floating in-app notification banners.
-class AppBannerService {
-  static final AppBannerService _instance = AppBannerService._internal();
-
-  factory AppBannerService() => _instance;
-
-  AppBannerService._internal();
-
-  static AppBannerService get instance => _instance;
-
+abstract class AppBannerService {
   /// Global navigator key that apps can set on MaterialApp/GoRouter for context-less banner display.
   static final GlobalKey<NavigatorState> navigatorKey =
       GlobalKey<NavigatorState>();
 
-  OverlayEntry? _currentOverlayEntry;
-  Timer? _dismissTimer;
-  GlobalKey<AppBannerWidgetState>? _currentKey;
+  static OverlayEntry? _currentOverlayEntry;
+  static Timer? _dismissTimer;
 
-  /// Programmatically hides the currently visible banner with a slide-up exit animation.
+  /// Programmatically hides the currently visible banner.
   static void hideCurrentBanner() {
-    _instance._dismissTimer?.cancel();
-    _instance._dismissTimer = null;
+    _dismissTimer?.cancel();
+    _dismissTimer = null;
 
-    if (_instance._currentKey?.currentState != null) {
-      final state = _instance._currentKey!.currentState;
-      _instance._currentKey = null;
-      state?.dismiss();
-    } else if (_instance._currentOverlayEntry != null) {
-      if (_instance._currentOverlayEntry!.mounted) {
-        _instance._currentOverlayEntry!.remove();
+    if (_currentOverlayEntry != null) {
+      if (_currentOverlayEntry!.mounted) {
+        _currentOverlayEntry!.remove();
       }
-      _instance._currentOverlayEntry = null;
+      _currentOverlayEntry = null;
     }
   }
 
@@ -44,7 +31,7 @@ class AppBannerService {
     String? title,
     Duration? duration,
   }) {
-    _instance._showBanner(
+    _showBanner(
       context: context,
       type: AppBannerType.success,
       title: title ?? 'Success',
@@ -60,7 +47,7 @@ class AppBannerService {
     String? title,
     Duration? duration,
   }) {
-    _instance._showBanner(
+    _showBanner(
       context: context,
       type: AppBannerType.error,
       title: title ?? 'Error',
@@ -78,7 +65,7 @@ class AppBannerService {
     VoidCallback? onTap,
     Duration? duration,
   }) {
-    _instance._showBanner(
+    _showBanner(
       context: context,
       type: AppBannerType.info,
       title: title,
@@ -91,7 +78,7 @@ class AppBannerService {
     );
   }
 
-  void _showBanner({
+  static void _showBanner({
     BuildContext? context,
     required AppBannerType type,
     required String title,
@@ -100,7 +87,7 @@ class AppBannerService {
     Duration? duration,
   }) {
     // Immediately remove existing overlay if present before showing a new banner
-    _removeOverlayImmediately();
+    hideCurrentBanner();
 
     final targetContext = context ?? navigatorKey.currentContext;
     OverlayState? overlayState;
@@ -118,9 +105,6 @@ class AppBannerService {
       return;
     }
 
-    final key = GlobalKey<AppBannerWidgetState>();
-    _currentKey = key;
-
     late OverlayEntry entry;
     entry = OverlayEntry(
       builder: (context) {
@@ -130,7 +114,6 @@ class AppBannerService {
           right: 0,
           child: SafeArea(
             child: AppBannerWidget(
-              key: key,
               type: type,
               title: title,
               body: body,
@@ -141,7 +124,6 @@ class AppBannerService {
                     entry.remove();
                   }
                   _currentOverlayEntry = null;
-                  _currentKey = null;
                 }
               },
             ),
@@ -158,17 +140,5 @@ class AppBannerService {
         hideCurrentBanner();
       });
     }
-  }
-
-  void _removeOverlayImmediately() {
-    _dismissTimer?.cancel();
-    _dismissTimer = null;
-    if (_currentOverlayEntry != null) {
-      if (_currentOverlayEntry!.mounted) {
-        _currentOverlayEntry!.remove();
-      }
-      _currentOverlayEntry = null;
-    }
-    _currentKey = null;
   }
 }

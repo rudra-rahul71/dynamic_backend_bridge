@@ -5,7 +5,7 @@ enum AppBannerType { success, error, info }
 /// Top floating banner card widget styled with theme surface background, elevation,
 /// rounded corners, and type accent indicator.
 ///
-/// Supports slide-down entry animation, slide-up exit animation, swipe-up gesture to dismiss,
+/// Supports slide-down entry animation, swipe-up gesture to dismiss,
 /// title, body message, optional action button, and close button.
 class AppBannerWidget extends StatefulWidget {
   final AppBannerType type;
@@ -32,15 +32,14 @@ class AppBannerWidget extends StatefulWidget {
   });
 
   @override
-  State<AppBannerWidget> createState() => AppBannerWidgetState();
+  State<AppBannerWidget> createState() => _AppBannerWidgetState();
 }
 
-class AppBannerWidgetState extends State<AppBannerWidget>
+class _AppBannerWidgetState extends State<AppBannerWidget>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<Offset> _slideAnimation;
   late Animation<double> _fadeAnimation;
-  bool _isDismissing = false;
 
   @override
   void initState() {
@@ -72,18 +71,6 @@ class AppBannerWidgetState extends State<AppBannerWidget>
   void dispose() {
     _controller.dispose();
     super.dispose();
-  }
-
-  /// Triggers reverse slide-up animation and notifies callback when finished.
-  Future<void> dismiss() async {
-    if (_isDismissing || !mounted) return;
-    _isDismissing = true;
-    try {
-      await _controller.reverse();
-    } catch (_) {}
-    if (mounted) {
-      widget.onDismissed?.call();
-    }
   }
 
   Color _getAccentColor(BuildContext context) {
@@ -118,113 +105,111 @@ class AppBannerWidgetState extends State<AppBannerWidget>
       position: _slideAnimation,
       child: FadeTransition(
         opacity: _fadeAnimation,
-        child: GestureDetector(
-          onVerticalDragUpdate: (details) {
-            if (details.primaryDelta != null && details.primaryDelta! < -4) {
-              dismiss();
-            }
+        child: Dismissible(
+          key: UniqueKey(),
+          direction: DismissDirection.up,
+          onDismissed: (_) {
+            widget.onDismissed?.call();
           },
-          onVerticalDragEnd: (details) {
-            if (details.primaryVelocity != null &&
-                details.primaryVelocity! < -100) {
-              dismiss();
-            }
-          },
-          onTap: widget.onTap,
-          child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.surface,
-              borderRadius: BorderRadius.circular(12.0),
-              border: Border.all(
-                color: accentColor.withOpacity(0.45),
-                width: 1.5,
+          child: GestureDetector(
+            onTap: widget.onTap,
+            child: Container(
+              margin: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 8.0,
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.15),
-                  blurRadius: 12.0,
-                  offset: const Offset(0, 4),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surface,
+                borderRadius: BorderRadius.circular(12.0),
+                border: Border.all(
+                  color: accentColor.withOpacity(0.45),
+                  width: 1.5,
                 ),
-              ],
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(12.0),
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    // Type accent icon
-                    Container(
-                      padding: const EdgeInsets.all(6.0),
-                      decoration: BoxDecoration(
-                        color: accentColor.withOpacity(0.12),
-                        shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.15),
+                    blurRadius: 12.0,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12.0),
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      // Type accent icon
+                      Container(
+                        padding: const EdgeInsets.all(6.0),
+                        decoration: BoxDecoration(
+                          color: accentColor.withOpacity(0.12),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(_getIcon(), color: accentColor, size: 20.0),
                       ),
-                      child: Icon(_getIcon(), color: accentColor, size: 20.0),
-                    ),
-                    const SizedBox(width: 12.0),
-                    // Title & Body
-                    Expanded(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            widget.title,
-                            style: theme.textTheme.titleSmall?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: theme.colorScheme.onSurface,
-                            ),
-                          ),
-                          if (widget.body != null &&
-                              widget.body!.isNotEmpty) ...[
-                            const SizedBox(height: 4.0),
+                      const SizedBox(width: 12.0),
+                      // Title & Body
+                      Expanded(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
                             Text(
-                              widget.body!,
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                color: theme.colorScheme.onSurface.withOpacity(
-                                  0.8,
-                                ),
+                              widget.title,
+                              style: theme.textTheme.titleSmall?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: theme.colorScheme.onSurface,
                               ),
                             ),
-                          ],
-                          if (widget.actionLabel != null &&
-                              widget.actionLabel!.isNotEmpty) ...[
-                            const SizedBox(height: 6.0),
-                            GestureDetector(
-                              onTap: widget.onActionTap,
-                              child: Text(
-                                widget.actionLabel!,
-                                style: theme.textTheme.labelMedium?.copyWith(
-                                  color: accentColor,
-                                  fontWeight: FontWeight.bold,
+                            if (widget.body != null &&
+                                widget.body!.isNotEmpty) ...[
+                              const SizedBox(height: 4.0),
+                              Text(
+                                widget.body!,
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: theme.colorScheme.onSurface
+                                      .withOpacity(0.8),
                                 ),
                               ),
-                            ),
+                            ],
+                            if (widget.actionLabel != null &&
+                                widget.actionLabel!.isNotEmpty) ...[
+                              const SizedBox(height: 6.0),
+                              GestureDetector(
+                                onTap: widget.onActionTap,
+                                child: Text(
+                                  widget.actionLabel!,
+                                  style: theme.textTheme.labelMedium?.copyWith(
+                                    color: accentColor,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ],
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 8.0),
-                    // Close button
-                    GestureDetector(
-                      onTap: () {
-                        widget.onClose?.call();
-                        dismiss();
-                      },
-                      behavior: HitTestBehavior.opaque,
-                      child: Padding(
-                        padding: const EdgeInsets.all(4.0),
-                        child: Icon(
-                          Icons.close_rounded,
-                          size: 18.0,
-                          color: theme.colorScheme.onSurface.withOpacity(0.5),
                         ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: 8.0),
+                      // Close button
+                      GestureDetector(
+                        onTap: () {
+                          widget.onClose?.call();
+                          widget.onDismissed?.call();
+                        },
+                        behavior: HitTestBehavior.opaque,
+                        child: Padding(
+                          padding: const EdgeInsets.all(4.0),
+                          child: Icon(
+                            Icons.close_rounded,
+                            size: 18.0,
+                            color: theme.colorScheme.onSurface.withOpacity(0.5),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
