@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../auth/auth_repository.dart';
 import '../services/app_banner_service.dart';
+import '../providers/core_providers.dart';
 
-class DynamicSignInPage extends StatefulWidget {
+class DynamicSignInPage extends ConsumerStatefulWidget {
   final String appName;
   final Widget? appIcon;
   final VoidCallback onSignInSuccess;
@@ -18,10 +19,10 @@ class DynamicSignInPage extends StatefulWidget {
   });
 
   @override
-  State<DynamicSignInPage> createState() => _DynamicSignInPageState();
+  ConsumerState<DynamicSignInPage> createState() => _DynamicSignInPageState();
 }
 
-class _DynamicSignInPageState extends State<DynamicSignInPage> {
+class _DynamicSignInPageState extends ConsumerState<DynamicSignInPage> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -44,7 +45,7 @@ class _DynamicSignInPageState extends State<DynamicSignInPage> {
       _isLoading = true;
     });
 
-    final authRepo = GetIt.instance<AuthRepository>();
+    final authRepo = ref.read(authRepositoryProvider);
     final email = _emailController.text.trim();
     final password = _passwordController.text;
 

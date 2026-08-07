@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:dynamic_backend_bridge/dynamic_backend_bridge.dart';
@@ -9,12 +8,9 @@ void main() {
   SharedPreferences.setMockInitialValues({});
 
   test('DynamicBackendBridge re-initialization test', () async {
-    final getIt = GetIt.instance;
-
     final config1 = AppConfig(backendType: BackendType.managed);
     await DynamicBackendBridge.initialize(
       config: config1,
-      getIt: getIt,
       defaultSupabaseUrl: 'https://managed.supabase.co',
       defaultSupabaseAnonKey:
           'managedKey1234567890123456789012345678901234567890',
@@ -31,7 +27,6 @@ void main() {
 
     await DynamicBackendBridge.initialize(
       config: config2,
-      getIt: getIt,
       defaultSupabaseUrl: 'https://managed.supabase.co',
       defaultSupabaseAnonKey:
           'managedKey1234567890123456789012345678901234567890',

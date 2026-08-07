@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dynamic_backend_bridge/dynamic_backend_bridge.dart';
-
-final getIt = GetIt.instance;
+import 'package:dynamic_backend_bridge/src/providers/core_providers.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -13,14 +12,18 @@ void main() async {
       AppConfig(backendType: BackendType.managed);
 
   // Initialize the Dynamic Backend Bridge with optional default managed Supabase credentials
-  await DynamicBackendBridge.initialize(
+  final overrides = await DynamicBackendBridge.initialize(
     config: config,
-    getIt: getIt,
     defaultSupabaseUrl: 'https://your-project.supabase.co',
     defaultSupabaseAnonKey: 'your-anon-key',
   );
 
-  runApp(MyApp(configService: configService));
+  runApp(
+    ProviderScope(
+      overrides: overrides,
+      child: MyApp(configService: configService),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -37,14 +40,14 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends ConsumerWidget {
   final ConfigService configService;
   const HomeScreen({super.key, required this.configService});
 
   @override
-  Widget build(BuildContext context) {
-    final db = getIt<DatabaseRepository>();
-    final auth = getIt<AuthRepository>();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final db = ref.read(databaseRepositoryProvider);
+    final auth = ref.read(authRepositoryProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -63,12 +66,13 @@ class HomeScreen extends StatelessWidget {
                       return null;
                     },
                     onComplete: (newConfig) async {
-                      await DynamicBackendBridge.initialize(
+                      final newOverrides = await DynamicBackendBridge.initialize(
                         config: newConfig,
-                        getIt: getIt,
                         defaultSupabaseUrl: 'https://your-project.supabase.co',
                         defaultSupabaseAnonKey: 'your-anon-key',
                       );
+                      // In a real app, you would need to rebuild the ProviderScope with new overrides,
+                      // or use a mutable provider to swap the clients out.
                       if (context.mounted) {
                         Navigator.of(context).pop();
                       }
