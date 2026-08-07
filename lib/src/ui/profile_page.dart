@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
-import '../auth/auth_repository.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/app_banner_service.dart';
+import '../providers/core_providers.dart';
 
-class DynamicProfilePage extends StatefulWidget {
+class DynamicProfilePage extends ConsumerStatefulWidget {
   final String header;
   final String sub;
   final String? userEmail;
@@ -20,20 +20,11 @@ class DynamicProfilePage extends StatefulWidget {
   });
 
   @override
-  State<DynamicProfilePage> createState() => _DynamicProfilePageState();
+  ConsumerState<DynamicProfilePage> createState() => _DynamicProfilePageState();
 }
 
-class _DynamicProfilePageState extends State<DynamicProfilePage> {
-  UserEntity? _currentUser;
+class _DynamicProfilePageState extends ConsumerState<DynamicProfilePage> {
   bool _isSigningOut = false;
-
-  @override
-  void initState() {
-    super.initState();
-    if (GetIt.instance.isRegistered<AuthRepository>()) {
-      _currentUser = GetIt.instance<AuthRepository>().currentUser;
-    }
-  }
 
   Future<void> _handleSignOut() async {
     setState(() {
@@ -43,8 +34,8 @@ class _DynamicProfilePageState extends State<DynamicProfilePage> {
     try {
       if (widget.onSignOut != null) {
         await widget.onSignOut!();
-      } else if (GetIt.instance.isRegistered<AuthRepository>()) {
-        final authRepo = GetIt.instance<AuthRepository>();
+      } else {
+        final authRepo = ref.read(authRepositoryProvider);
         await authRepo.signOut();
       }
 
@@ -72,8 +63,9 @@ class _DynamicProfilePageState extends State<DynamicProfilePage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final primaryColor = theme.colorScheme.primary;
+    final currentUser = ref.read(authRepositoryProvider).currentUser;
     final displayEmail =
-        widget.userEmail ?? _currentUser?.email ?? 'Unknown User';
+        widget.userEmail ?? currentUser?.email ?? 'Unknown User';
 
     return Scaffold(
       backgroundColor: Colors.transparent,

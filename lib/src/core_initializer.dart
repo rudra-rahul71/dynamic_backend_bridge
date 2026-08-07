@@ -1,23 +1,21 @@
-import 'package:get_it/get_it.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'auth/auth_repository.dart';
 import 'auth/supabase_auth_impl.dart';
-import 'database/database_repository.dart';
 import 'database/supabase_database_impl.dart';
 import 'models/app_config.dart';
 import 'services/notification_service.dart';
 import 'services/remote_notification_service.dart';
+import 'providers/core_providers.dart';
 
 class DynamicBackendBridge {
-  /// Initializes Supabase auth and database implementations dynamically, and registers them
-  /// as singletons inside the service locator (GetIt).
+  /// Initializes Supabase auth and database implementations dynamically, and returns
+  /// a list of Riverpod [Override]s to be injected into the [ProviderScope].
   ///
   /// For [BackendType.managed], [defaultSupabaseUrl] and [defaultSupabaseAnonKey] will be used.
   /// For [BackendType.customSupabase], the endpoint and key stored in [config] are used.
-  static Future<void> initialize({
+  static Future<List<Override>> initialize({
     required AppConfig config,
-    required GetIt getIt,
     String? defaultSupabaseUrl,
     String? defaultSupabaseAnonKey,
     String dbSchema = 'public',
@@ -28,31 +26,8 @@ class DynamicBackendBridge {
     bool enableRemoteNotifications = false,
     String? appId,
   }) async {
-    // Unregister existing services if registered (for backend hot swaps)
-    if (getIt.isRegistered<AuthRepository>()) {
-      try {
-        final oldAuth = getIt<AuthRepository>();
-        await oldAuth.signOut();
-        if (oldAuth is SupabaseAuthImpl) {
-          oldAuth.dispose();
-        }
-      } catch (_) {}
-      await getIt.unregister<AuthRepository>();
-    }
-    if (getIt.isRegistered<DatabaseRepository>()) {
-      await getIt.unregister<DatabaseRepository>();
-    }
-
-    // Register notification service singleton (interface & implementation)
-    if (!getIt.isRegistered<NotificationService>()) {
-      final notifService = LocalNotificationService();
-      getIt.registerSingleton<NotificationService>(notifService);
-      if (!getIt.isRegistered<LocalNotificationService>()) {
-        getIt.registerSingleton<LocalNotificationService>(notifService);
-      }
-    }
-
-    await getIt<NotificationService>().initialize(
+    final notifService = LocalNotificationService();
+    await notifService.initialize(
       defaultChannelId: defaultNotificationChannelId,
       defaultChannelName: defaultNotificationChannelName,
       defaultChannelDescription: defaultNotificationChannelDesc,
@@ -61,12 +36,7 @@ class DynamicBackendBridge {
 
     RemoteNotificationService? remoteNotifService;
     if (enableRemoteNotifications) {
-      if (!getIt.isRegistered<RemoteNotificationService>()) {
-        remoteNotifService = FCMNotificationService();
-        getIt.registerSingleton<RemoteNotificationService>(remoteNotifService);
-      } else {
-        remoteNotifService = getIt<RemoteNotificationService>();
-      }
+      remoteNotifService = FCMNotificationService();
       await remoteNotifService.initialize();
     }
 
@@ -90,15 +60,22 @@ class DynamicBackendBridge {
     );
 
     final client = Supabase.instance.client;
-    getIt.registerSingleton<AuthRepository>(
-      SupabaseAuthImpl(
-        client: client,
-        remoteNotificationService: remoteNotifService,
-        appId: appId,
-      ),
+    
+    final authRepo = SupabaseAuthImpl(
+      client: client,
+      remoteNotificationService: remoteNotifService,
+      appId: appId,
     );
-    getIt.registerSingleton<DatabaseRepository>(
-      SupabaseDatabaseImpl(client: client, schema: dbSchema),
-    );
+    
+    final dbRepo = SupabaseDatabaseImpl(client: client, schema: dbSchema);
+
+    return [
+      supabaseClientProvider.overrideWithValue(client),
+      authRepositoryProvider.overrideWithValue(authRepo),
+      databaseRepositoryProvider.overrideWithValue(dbRepo),
+      notificationServiceProvider.overrideWithValue(notifService),
+      if (remoteNotifService != null)
+        remoteNotificationServiceProvider.overrideWithValue(remoteNotifService),
+    ];
   }
 }
