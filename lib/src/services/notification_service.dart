@@ -94,7 +94,7 @@ class LocalNotificationService implements NotificationService {
 
       final androidSettings = AndroidInitializationSettings(defaultAndroidIcon);
 
-      const iosSettings = DarwinInitializationSettings(
+      const darwinSettings = DarwinInitializationSettings(
         requestAlertPermission: true,
         requestBadgePermission: true,
         requestSoundPermission: true,
@@ -107,7 +107,8 @@ class LocalNotificationService implements NotificationService {
 
       final initializationSettings = InitializationSettings(
         android: androidSettings,
-        iOS: iosSettings,
+        iOS: darwinSettings,
+        macOS: darwinSettings,
       );
 
       await _notificationsPlugin.initialize(
@@ -137,6 +138,17 @@ class LocalNotificationService implements NotificationService {
               IOSFlutterLocalNotificationsPlugin
             >();
         return await iosImplementation?.requestPermissions(
+              alert: true,
+              badge: true,
+              sound: true,
+            ) ??
+            false;
+      } else if (Platform.isMacOS) {
+        final macosImplementation = _notificationsPlugin
+            .resolvePlatformSpecificImplementation<
+              MacOSFlutterLocalNotificationsPlugin
+            >();
+        return await macosImplementation?.requestPermissions(
               alert: true,
               badge: true,
               sound: true,
@@ -179,7 +191,11 @@ class LocalNotificationService implements NotificationService {
       interruptionLevel: InterruptionLevel.timeSensitive,
     );
 
-    return NotificationDetails(android: androidDetails, iOS: darwinDetails);
+    return NotificationDetails(
+      android: androidDetails,
+      iOS: darwinDetails,
+      macOS: darwinDetails,
+    );
   }
 
   @override
